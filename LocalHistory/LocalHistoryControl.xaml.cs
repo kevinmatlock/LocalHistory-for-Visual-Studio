@@ -22,10 +22,10 @@ namespace LOSTALLOY.LocalHistory {
     using System.Windows.Data;
     using System.Windows.Input;
     using JetBrains.Annotations;
-    using Microsoft.VisualBasic;
     using Microsoft.VisualBasic.FileIO;
     using Microsoft.VisualStudio.Shell;
     using Microsoft.VisualStudio.Shell.Interop;
+    using WPFCustomMessageBox;
     using FileSystem = Microsoft.VisualBasic.FileIO.FileSystem;
 
 
@@ -370,10 +370,12 @@ namespace LOSTALLOY.LocalHistory {
             var shouldReselectNode = false;
             var didChangeLabel = false;
             if (node.HasLabel) {
-                var messageBoxResult = MessageBox.Show(
+                var messageBoxResult = CustomMessageBox.ShowYesNoCancel(
                     string.Format(LocalHistory.Resources.LabelDeletionWindowFileHasLabelRemoveIt, node.Label),
-                    LocalHistory.Resources.LabelDeletionWindowTitle,
-                    MessageBoxButton.YesNoCancel);
+                    LocalHistory.Resources.LabelChangeWindowTitle,
+                    LocalHistory.Resources.Remove,
+                    LocalHistory.Resources.Change,
+                    LocalHistory.Resources.Cancel);
                 switch (messageBoxResult) {
                     case MessageBoxResult.Cancel:
                         return false;
@@ -401,10 +403,27 @@ namespace LOSTALLOY.LocalHistory {
         }
 
         private bool TryAddingLabel(DocumentNode node) {
-            var label = Interaction.InputBox(LocalHistory.Resources.AddLabelMsgBoxLabel, LocalHistory.Resources.AddLabelMsgBoxTitle, "");
-            var isValid = !string.IsNullOrEmpty(label) &&
-                          label.IndexOfAny(Path.GetInvalidFileNameChars()) < 0;
-            if (isValid) {
+            void LabelInputValidator(object o, InputBoxValidatingArgs e) {
+                if (LabelIsValid(e.Text?.Trim())) {
+                    return;
+                }
+
+                e.Cancel = true;
+                e.Message = LocalHistory.Resources.InvalidLabel;
+            }
+
+            bool LabelIsValid(string l) {
+                return !string.IsNullOrEmpty(l) &&
+                       l.IndexOfAny(Path.GetInvalidFileNameChars()) < 0;
+            }
+
+            var label = InputBox.Show(
+                LocalHistory.Resources.AddLabelMsgBoxLabel,
+                LocalHistory.Resources.AddLabelMsgBoxTitle,
+                "",
+                LabelInputValidator)?.Text ?? string.Empty;
+
+            if (LabelIsValid(label)) {
                 if (node.Label == label) {
                     return false;
                 }

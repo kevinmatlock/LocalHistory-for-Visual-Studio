@@ -123,8 +123,14 @@
   <data name="AddLabelMsgBoxTitle" xml:space="preserve">
     <value>Add label</value>
   </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
   <data name="CanNotCreateWindow" xml:space="preserve">
     <value>Can not create tool window.</value>
+  </data>
+  <data name="Change" xml:space="preserve">
+    <value>Change</value>
   </data>
   <data name="EmptyList" xml:space="preserve">
     <value>Nothing to show.</value>
@@ -135,19 +141,25 @@
   <data name="FileDeleteWindowTitle" xml:space="preserve">
     <value>Confirm file deletion</value>
   </data>
+  <data name="InvalidLabel" xml:space="preserve">
+    <value>Invalid label. Label must not contain invalid path chars.</value>
+  </data>
   <data name="InvalidLabelWindowMessage" xml:space="preserve">
     <value>Label \"{0}\" is invalid.\nNot adding."</value>
   </data>
   <data name="InvalidLabelWindowTitle" xml:space="preserve">
     <value>Invalid label</value>
   </data>
+  <data name="LabelChangeWindowTitle" xml:space="preserve">
+    <value>Please confirm</value>
+  </data>
   <data name="LabelDeletionWindowFileHasLabelRemoveIt" xml:space="preserve">
     <value>File has label {0}.
 Remove it?
 There is no undo.</value>
   </data>
-  <data name="LabelDeletionWindowTitle" xml:space="preserve">
-    <value>Confirm label deletion</value>
+  <data name="Remove" xml:space="preserve">
+    <value>Remove</value>
   </data>
   <data name="ToolWindowTitle" xml:space="preserve">
     <value>Local History</value>

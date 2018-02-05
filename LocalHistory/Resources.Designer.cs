@@ -79,11 +79,29 @@ namespace LOSTALLOY.LocalHistory {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        public static string Cancel {
+            get {
+                return ResourceManager.GetString("Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can not create tool window..
         /// </summary>
         public static string CanNotCreateWindow {
             get {
                 return ResourceManager.GetString("CanNotCreateWindow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change.
+        /// </summary>
+        public static string Change {
+            get {
+                return ResourceManager.GetString("Change", resourceCulture);
             }
         }
         
@@ -115,6 +133,15 @@ namespace LOSTALLOY.LocalHistory {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid label. Label must not contain invalid path chars..
+        /// </summary>
+        public static string InvalidLabel {
+            get {
+                return ResourceManager.GetString("InvalidLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Label \&quot;{0}\&quot; is invalid.\nNot adding.&quot;.
         /// </summary>
         public static string InvalidLabelWindowMessage {
@@ -133,6 +160,15 @@ namespace LOSTALLOY.LocalHistory {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Please confirm.
+        /// </summary>
+        public static string LabelChangeWindowTitle {
+            get {
+                return ResourceManager.GetString("LabelChangeWindowTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to File has label {0}.
         ///Remove it?
         ///There is no undo..
@@ -144,11 +180,11 @@ namespace LOSTALLOY.LocalHistory {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Confirm label deletion.
+        ///   Looks up a localized string similar to Remove.
         /// </summary>
-        public static string LabelDeletionWindowTitle {
+        public static string Remove {
             get {
-                return ResourceManager.GetString("LabelDeletionWindowTitle", resourceCulture);
+                return ResourceManager.GetString("Remove", resourceCulture);
             }
         }
         
