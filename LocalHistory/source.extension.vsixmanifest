@@ -6,7 +6,7 @@
         <Description xml:space="preserve">Local History for Visual Studio automatically creates a copy everytime you save a file. The local history is stored in the .localhistory directory in the solution and can be viewed by right clicking the file in the Solution Explorer. Items can be delete with the "delete" key, and a label can be added to any item with the "L" key.  If an item already has a label, the "L" key will show a dialog to remove or change the label. Settings can be found in Tools -&gt; Options -&gt; LocalHistory.
 </Description>
         <License>License.txt</License>
-        <ReleaseNotes>Changelog.txt</ReleaseNotes>
+        <ReleaseNotes>CHANGELOG.MD</ReleaseNotes>
         <Tags>Source Control</Tags>
     </Metadata>
     <Installation InstalledByMsi="false">
