@@ -1,208 +1,228 @@
-﻿/*
-Copyright 2013 Intel Corporation
+﻿// Copyright 2017 LOSTALLOY
+// Copyright 2013 Intel Corporation
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//    http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+namespace LOSTALLOY.LocalHistory {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using JetBrains.Annotations;
 
-   http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+    internal class DocumentRepository {
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
+        #region Constructors and Destructors
 
-namespace Intel.LocalHistory
-{
-  class DocumentRepository
-  {
-    // Epoch used for converting to unix time.
-    private static readonly DateTime EPOCH = new DateTime(1970, 1, 1);
+        /// <summary>
+        ///     Creates a new <code>DocumentRepository</code> for the given solution and repository.
+        /// </summary>
+        public DocumentRepository(string solutionDirectory, string repositoryDirectory) {
+            SolutionDirectory = solutionDirectory;
+            RepositoryDirectory = repositoryDirectory;
 
-    public string SolutionDirectory { get; set; }
+            if (!Directory.Exists(RepositoryDirectory)) {
+                Directory.CreateDirectory(RepositoryDirectory);
+            }
 
-    public string RepositoryDirectory { get; set; }
-
-    // TODO: remove this
-    public LocalHistoryControl Control { get; set; }
-
-    /// <summary>
-    /// Creates a new <code>DocumentRepository</code> for the given solution and repository.
-    /// </summary>
-    public DocumentRepository(string solutionDirectory, string repositoryDirectory)
-    {
-      SolutionDirectory = solutionDirectory;
-      RepositoryDirectory = repositoryDirectory;
-
-      if (!Directory.Exists(RepositoryDirectory))
-      {
-        Directory.CreateDirectory(RepositoryDirectory);
-      }
-
-      File.SetAttributes(RepositoryDirectory, FileAttributes.Hidden);
-    }
-
-    /// <summary>
-    /// Creates a new new revision in the repository for the given project item.
-    /// </summary>
-    public DocumentNode CreateRevision(string filePath)
-    {
-      Debug.WriteLine("CreateRevision(" + filePath + ")");
-
-      if (filePath == null) throw new ArgumentNullException("filePath");
-
-      DocumentNode newNode = null;
-
-      try
-      {
-        DateTime dateTime = DateTime.Now;
-        newNode = GetRevision(filePath, dateTime);
-
-        // Create the parent directory if it doesn't exist
-        string dirPath = Path.GetDirectoryName(newNode.RepositoryPath);
-        if (!File.Exists(dirPath))
-        {
-          Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "In GetRevision() of: {0} creating {1}", this.ToString(), dirPath));
-
-          System.IO.Directory.CreateDirectory(dirPath);
+            File.SetAttributes(RepositoryDirectory, FileAttributes.Hidden);
         }
 
-        // Copy the file to the repository
-        File.Copy(filePath, newNode.RepositoryPath, true);
+
+        /// <summary>
+        ///     Creates a new new revision in the repository for the given project item.
+        /// </summary>
+        [CanBeNull]
+        public DocumentNode CreateRevision(string filePath) {
+            LocalHistoryPackage.Log("CreateRevision(" + filePath + ")");
+
+            if (string.IsNullOrEmpty(filePath)) {
+                return null;
+            }
+
+            filePath = Utils.NormalizePath(filePath);
+            DocumentNode newNode = null;
+
+            try {
+                var dateTime = DateTime.Now;
+                newNode = CreateRevisionNode(filePath, dateTime);
+                if (newNode == null) {
+                    return null;
+                }
+
+                // Create the parent directory if it doesn't exist
+                if (!Directory.Exists(newNode.RepositoryPath)) {
+                    LocalHistoryPackage.Log($"Creating (because it doesn't exist) \"{newNode.RepositoryPath}\"");
+                    Directory.CreateDirectory(newNode.RepositoryPath);
+                }
+
+                // Copy the file to the repository
+                LocalHistoryPackage.Log($"Copying \"{filePath}\" to \"{newNode.VersionFileFullFilePath}\"");
+                File.Copy(filePath, newNode.VersionFileFullFilePath, true);
+
+                if (Control == null) {
+                    Control = (LocalHistoryControl)LocalHistoryPackage.Instance.ToolWindow?.Content;
+                }
+
+                if (Control?.LatestDocument.OriginalPath.Equals(newNode.OriginalPath) == true) {
+                    Control.DocumentItems.Insert(0, newNode);
+                }
+            }
+            catch (Exception ex) {
+                LocalHistoryPackage.Log(ex.Message);
+            }
+
+            return newNode;
+        }
+
+
+        /// <summary>
+        ///     Creates a new <see cref="DocumentNode" /> for the given file and time.
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="dateTime"></param>
+        /// <returns></returns>
+        [CanBeNull]
+        public DocumentNode CreateRevisionNode(string filePath, DateTime dateTime) {
+            LocalHistoryPackage.Log(
+                $"CreateRevisionNode(filePath:\"{filePath}\", dateTime:{dateTime}), SolutionDirectory:\"{SolutionDirectory}\", RepositoryDirectory:\"{RepositoryDirectory}\"");
+
+            // ReSharper disable once MergeSequentialChecksWhenPossible
+            if (string.IsNullOrEmpty(filePath) || !filePath.IsSubPathOf(SolutionDirectory)) {
+                LocalHistoryPackage.Log("file \"{filePath}\" is not a sub-file of the sln dir. Will not create revision.");
+                return null;
+            }
+
+            var originalFilePath = filePath;
+            var fileName = Path.GetFileName(filePath);
+            var repositoryPath =
+                    Path.GetDirectoryName(filePath)
+                        ?.Replace(
+                            SolutionDirectory,
+                            RepositoryDirectory,
+                            StringComparison.InvariantCultureIgnoreCase) ?? RepositoryDirectory;
+
+            LocalHistoryPackage.Log($"Path.GetDirectoryName(filePath):\"{Path.GetDirectoryName(filePath)}\"");
+            LocalHistoryPackage.Log($"fileName:\"{fileName}\", repositoryPath:\"{repositoryPath}\"");
+
+            return new DocumentNode(repositoryPath, originalFilePath, fileName, dateTime);
+        }
+
+
+        /// <summary>
+        ///     Creates a <see cref="DocumentNode" /> for a given <see cref="versionedFullFilePath" />
+        /// </summary>
+        [CanBeNull]
+        public DocumentNode CreateDocumentNodeForFilePath([CanBeNull] string versionedFullFilePath) {
+            if (versionedFullFilePath == null) {
+                return null;
+            }
+
+            LocalHistoryPackage.LogTrace($"Trying to create {nameof(DocumentNode)} for \"{versionedFullFilePath}\"");
+
+            versionedFullFilePath = Utils.NormalizePath(versionedFullFilePath);
+            string[] parts = Path.GetFileName(versionedFullFilePath).Split('$');
+            var dateFromFileName = parts[0];
+            var fileName = parts[1];
+            var label = parts.Length == 3 ? parts[2] : null;
+
+            var repositoryPath = Path.GetDirectoryName(versionedFullFilePath) ?? RepositoryDirectory;
+            var originalFullFilePath =
+                    Path.GetDirectoryName(versionedFullFilePath)
+                        ?.Replace(
+                            RepositoryDirectory,
+                            SolutionDirectory,
+                            StringComparison.InvariantCultureIgnoreCase) ?? SolutionDirectory;
+            originalFullFilePath = Path.Combine(originalFullFilePath, fileName);
+
+            LocalHistoryPackage.LogTrace(
+                $"Creating {nameof(DocumentNode)} for \"{fileName}\" " +
+                $"(repositoryPath:\"{repositoryPath}\", originalFullFilePath:\"{originalFullFilePath}\")"
+            );
+
+            return new DocumentNode(repositoryPath, originalFullFilePath, fileName, dateFromFileName, label);
+        }
+
+        #endregion
+
+
+        #region Public Properties
+
+        public string SolutionDirectory { get; set; }
+
+        public string RepositoryDirectory { get; set; }
 
         // TODO: remove this
-        if (Control != null && Control.LatestDocument.OriginalPath.Equals(newNode.OriginalPath))
-        {
-          Control.DocumentItems.Insert(0, newNode);
-        }
-      }
-      catch (Exception ex)
-      {
-        Debug.WriteLine(ex.Message);
-      }
+        public LocalHistoryControl Control { get; set; }
 
-      return newNode;
-    }
+        #endregion
 
-    /// <summary>
-    /// Returns a DocumentNode object for the given project item and datetime.
-    /// </summary>
-    public DocumentNode GetRevision(string filePath, DateTime dateTime)
-    {
-      Debug.WriteLine("GetRevision(" + filePath + "," + dateTime  + ")");
 
-      if (filePath == null) throw new ArgumentNullException("filePath");
+        #region Public Methods and Operators
 
-      string unixTime = ToUnixTime(dateTime).ToString(CultureInfo.CurrentCulture);
-      string fileName = Path.GetFileName(filePath);
-      string relativePath = filePath.StartsWith(SolutionDirectory) ? filePath.Replace(SolutionDirectory + "\\", "") :
-        // If the path is outside the solution directory, we have to mess with the drive letter
-        Path.Combine(Path.GetPathRoot(filePath).Replace(":\\", ""), filePath.Replace(Path.GetPathRoot(filePath), ""));
-      string dirPath = Path.GetDirectoryName(relativePath);
-      string newPath = Path.Combine(RepositoryDirectory, dirPath, unixTime + "$" + fileName);
+        /// <summary>
+        ///     Returns all DocumentNode objects in the repository for the given project item.
+        /// </summary>
+        public IEnumerable<DocumentNode> GetRevisions([CanBeNull] string filePath) {
+            LocalHistoryPackage.Log($"Trying to get revisions for \"{filePath}\"");
+            var revisions = new List<DocumentNode>();
 
-      //Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "In GetRevision() of: {0} relativePath = {1}", this.ToString(), relativePath));
-      //Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "In GetRevision() of: {0} newPath = {1}", this.ToString(), newPath));
+            // ReSharper disable once MergeSequentialChecksWhenPossible
+            if (string.IsNullOrEmpty(filePath) || !filePath.IsSubPathOf(SolutionDirectory)) {
+                LocalHistoryPackage.Log(
+                    $"filePath \"{filePath}\" is not a" +
+                    $" sub-path of the solution directory \"{SolutionDirectory}\". Returning empty list.");
+                return revisions;
+            }
 
-      return new DocumentNode(newPath, filePath, fileName, dateTime);
-    }
+            var revisionsPath = Path.GetDirectoryName(filePath);
+            revisionsPath =
+                    revisionsPath?.Replace(
+                        SolutionDirectory,
+                        RepositoryDirectory,
+                        StringComparison.InvariantCultureIgnoreCase) ?? RepositoryDirectory;
+            var fileName = Path.GetFileName(filePath);
 
-    /// <summary>
-    /// Returns all DocumentNode objects in the repository for the given project item.
-    /// </summary>
-    public List<DocumentNode> GetRevisions(string filePath)
-    {
-      Debug.WriteLine("GetRevisions(" + filePath + ")");
+            if (!Directory.Exists(revisionsPath)) {
+                LocalHistoryPackage.Log(
+                    "revisionsPath does not exist." +
+                    $" Returning empty list. \"{revisionsPath}\"");
+                return revisions;
+            }
 
-      if (filePath == null) throw new ArgumentNullException("filePath");
+            LocalHistoryPackage.Log($"Searching for revisions for \"{fileName}\" in \"{revisionsPath}\"");
+            foreach (var fullFilePath in Directory.GetFiles(revisionsPath)) {
+                var normalizedFullFilePath = Utils.NormalizePath(fullFilePath);
+                string[] splitFileName = normalizedFullFilePath.Split('$');
+                normalizedFullFilePath = $"{splitFileName[0]}{splitFileName[1]}";//remove the label part
 
-      string relativePath = filePath.StartsWith(SolutionDirectory) ? filePath.Replace(SolutionDirectory + "\\", "") :
-        // If the path is outside the solution directory, we have to mess with the drive letter
-        Path.Combine(Path.GetPathRoot(filePath).Replace(":\\", ""), filePath.Replace(Path.GetPathRoot(filePath), ""));
-      string newPath = Path.Combine(RepositoryDirectory, relativePath);
-      string dirPath = Path.GetDirectoryName(newPath);
-      string fileName = Path.GetFileName(newPath);
+                //when running the OnBeforeSave, VS can return the filename as lower
+                //i.e., it can ignore the file name's case.
+                //Thus, the only way to retrieve everything here is to ignore case
+                //Remember that Windows is case insensitive by default, so we can't really
+                //have two files with names that differ only in case in the same dir.
+                if (!normalizedFullFilePath.EndsWith(fileName, StringComparison.OrdinalIgnoreCase)) {
+                    //LocalHistoryPackage.Log($"Not a revision:\"{normalizedFullFilePath}\"");
+                    continue;
+                }
 
-      //Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "In GetRevisions() of: {0} relativePath = {1}", this.ToString(), relativePath));
-      //Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "In GetRevisions() of: {0} newPath = {1}", this.ToString(), newPath));
-      //Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "In GetRevisions() of: {0} dirPath = {1}", this.ToString(), dirPath));
+                LocalHistoryPackage.LogTrace($"Found revision \"{fullFilePath}\"");
+                revisions.Add(CreateDocumentNodeForFilePath(fullFilePath));
+            }
 
-      List<DocumentNode> copies = new List<DocumentNode>();
+            revisions.Reverse();
 
-      if (Directory.Exists(dirPath))
-      {
-        string[] files = Directory.GetFiles(dirPath);
-
-        foreach (string file in files)
-        {
-          if (file.StartsWith(dirPath) && file.EndsWith(fileName))
-          {
-            //Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "In GetRevisions() of: {0} found {1}", this.ToString(), file));
-            copies.Add(GetDocumentNode(file));
-          }
-          //else
-          //{
-          //  Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "In GetRevisions() of: {0} skipping {1}", this.ToString(), file));
-          //}
+            return revisions;
         }
 
-        copies.Reverse();
-      }
+        #endregion
 
-      return copies;
     }
-
-    /// <summary>
-    /// Returns a DocumentNode from the given repository item.
-    /// </summary>
-    public DocumentNode GetDocumentNode(string filePath)
-    {
-      Debug.WriteLine("GetDocumentNode(" + filePath + ")");
-
-      if (filePath == null) throw new ArgumentNullException("filePath");
-
-      string[] parts = Path.GetFileName(filePath).Split('$');
-      string fileName = parts[1];
-
-      string dirPath = Path.GetDirectoryName(filePath.Replace(RepositoryDirectory + "\\", ""));
-      string originalPath = Path.Combine(SolutionDirectory, dirPath, fileName);
-
-      // If the file isn't in the SolutionDirectory, either it was deleted or it exists outside of the SolutionDirectory
-      if (!File.Exists(originalPath) && dirPath[1] == '\\')
-      {
-        string driveLetter = dirPath.Substring(0, 1);
-        string dirPart = dirPath.Substring(1);
-
-        string tempPath = driveLetter + ":" + Path.Combine(dirPart, fileName);
-
-        if(File.Exists(tempPath))
-        {
-          originalPath = tempPath;
-        }
-        // Else, it must have been deleted
-      }
-
-      DateTime dateTime = ToDateTime(Convert.ToInt64(parts[0]));
-
-      return new DocumentNode(filePath, originalPath, fileName, dateTime);
-    }
-
-    private DateTime ToDateTime(long unixTime)
-    {
-      return EPOCH.ToLocalTime().AddSeconds(unixTime);
-    }
-
-    private long ToUnixTime(DateTime dateTime)
-    {
-      return (long)(dateTime - EPOCH.ToLocalTime()).TotalSeconds;
-    }
-  }
 }

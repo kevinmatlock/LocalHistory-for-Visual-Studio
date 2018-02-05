@@ -1,21 +1,20 @@
 ﻿using System;
 using System.Reflection;
 using System.Resources;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("LocalHistory")]
+[assembly: AssemblyTitle("Sugoi LocalHistory")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Intel")]
-[assembly: AssemblyProduct("LocalHistory")]
+[assembly: AssemblyCompany("LOSTALLOY")]
+[assembly: AssemblyProduct("Sugoi LocalHistory")]
 [assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]   
-[assembly: ComVisible(false)]     
+[assembly: AssemblyCulture("")]
+[assembly: ComVisible(false)]
 [assembly: CLSCompliant(false)]
 [assembly: NeutralResourcesLanguage("en-US")]
 

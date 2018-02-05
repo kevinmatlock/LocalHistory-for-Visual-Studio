@@ -1,11 +1,13 @@
 ﻿// PkgCmdID.cs
 // MUST match PkgCmdID.h
-using System;
 
-namespace Intel.LocalHistory
+// ReSharper disable IdentifierTypo
+namespace LOSTALLOY.LocalHistory
 {
-    static class PkgCmdIDList
-    {
+    using System;
+
+
+    static class PkgCmdIDList {
         public const uint cmdidLocalHistoryMenuItem =        0x100;
         public const uint cmdidLocalHistoryWindow =    0x101;
 

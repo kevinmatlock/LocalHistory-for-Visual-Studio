@@ -41,7 +41,7 @@
          must be a menu. -->
     <Groups>
 
-      <Group guid="guidLocalHistoryCmdSet" id="MyMenuGroup" priority="0x0600">
+      <Group guid="guidLocalHistoryCmdSet" id="LocalHistory" priority="0x0600">
         <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_ITEMNODE"/>
       </Group>
       
@@ -62,7 +62,7 @@
           If you do not want an image next to your command, remove the Icon node /> -->
 
       <Button guid="guidLocalHistoryCmdSet" id="cmdidLocalHistoryMenuItem" priority="0x0100" type="Button">
-        <Parent guid="guidLocalHistoryCmdSet" id="MyMenuGroup" />
+        <Parent guid="guidLocalHistoryCmdSet" id="LocalHistory" />
         <Icon guid="guidImages" id="bmpPic1" />
         <Strings>
           <ButtonText>Local History...</ButtonText>
@@ -99,13 +99,15 @@
 
 
   <Symbols>
-    <!-- This is the package guid. -->
-    <GuidSymbol name="guidLocalHistoryPkg" value="{f39222a4-c9d6-4f51-8a0e-10b8b9dc1e4e}" />
+    <!-- This is the package guid. 
+    must the same defined in Guids.cs
+    -->
+    <GuidSymbol name="guidLocalHistoryPkg" value="{48473bd6-841e-4368-8c7a-a5ea9fad7081}" />
     
     <!-- This is the guid used to group the menu commands together -->
     <GuidSymbol name="guidLocalHistoryCmdSet" value="{9c0eb15a-b3d9-4d2c-b4eb-57703d1ee539}">
 
-      <IDSymbol name="MyMenuGroup" value="0x1020" />
+      <IDSymbol name="LocalHistory" value="0x1020" />
       <IDSymbol name="cmdidLocalHistoryMenuItem" value="0x0100" />
       <IDSymbol name="cmdidLocalHistoryWindow" value="0x0101" />
     </GuidSymbol>

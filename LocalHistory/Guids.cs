@@ -1,15 +1,29 @@
-﻿// Guids.cs
-// MUST match guids.h
-using System;
+﻿// ReSharper disable InconsistentNaming
 
-namespace Intel.LocalHistory
-{
-    static class GuidList
-    {
-        public const string guidLocalHistoryPkgString = "f39222a4-c9d6-4f51-8a0e-10b8b9dc1e4e";
-        public const string guidLocalHistoryCmdSetString = "9c0eb15a-b3d9-4d2c-b4eb-57703d1ee539";
-        public const string guidToolWindowPersistanceString = "d3b3b452-f976-4158-9451-d0a5ba7ee6a0";
+namespace LOSTALLOY.LocalHistory {
+    using System;
 
-        public static readonly Guid guidLocalHistoryCmdSet = new Guid(guidLocalHistoryCmdSetString);
+
+    internal static class GuidList {
+
+        #region Constants
+
+        /// <summary>
+        ///     Must match what's in the vsct file (or the menus won't work)
+        /// </summary>
+        public const string guidLocalHistoryPkgString = "48473bd6-841e-4368-8c7a-a5ea9fad7081";
+
+        #endregion
+
+
+        #region Static Fields
+
+        /// <summary>
+        ///     Must match what's in the vsct file (or the menus won't work)
+        /// </summary>
+        public static readonly Guid guidLocalHistoryCmdSet = new Guid("9c0eb15a-b3d9-4d2c-b4eb-57703d1ee539");
+
+        #endregion
+
     };
 }

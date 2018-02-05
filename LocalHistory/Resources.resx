@@ -1,13 +1,4 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!--
-    VS SDK Notes: This resx file contains the resources that will be consumed directly by your package.
-    For example, if you chose to create a tool window, there is a resource with ID 'CanNotCreateWindow'. This
-    is used in VsPkg.cs to determine the string to show the user if there is an error when attempting to create
-    the tool window.
-
-    Resources that are accessed directly from your package *by Visual Studio* are stored in the VSPackage.resx 
-    file.
--->
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -126,8 +117,37 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AddLabelMsgBoxLabel" xml:space="preserve">
+    <value>Label:</value>
+  </data>
+  <data name="AddLabelMsgBoxTitle" xml:space="preserve">
+    <value>Add label</value>
+  </data>
   <data name="CanNotCreateWindow" xml:space="preserve">
     <value>Can not create tool window.</value>
+  </data>
+  <data name="EmptyList" xml:space="preserve">
+    <value>Nothing to show.</value>
+  </data>
+  <data name="FileDeleteWindowMoveToRecycleBin" xml:space="preserve">
+    <value>Would you like to move {0} to the recycle bin?</value>
+  </data>
+  <data name="FileDeleteWindowTitle" xml:space="preserve">
+    <value>Confirm file deletion</value>
+  </data>
+  <data name="InvalidLabelWindowMessage" xml:space="preserve">
+    <value>Label \"{0}\" is invalid.\nNot adding."</value>
+  </data>
+  <data name="InvalidLabelWindowTitle" xml:space="preserve">
+    <value>Invalid label</value>
+  </data>
+  <data name="LabelDeletionWindowFileHasLabelRemoveIt" xml:space="preserve">
+    <value>File has label {0}.
+Remove it?
+There is no undo.</value>
+  </data>
+  <data name="LabelDeletionWindowTitle" xml:space="preserve">
+    <value>Confirm label deletion</value>
   </data>
   <data name="ToolWindowTitle" xml:space="preserve">
     <value>Local History</value>
