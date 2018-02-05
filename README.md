@@ -1,7 +1,13 @@
-local-history-visual-studio
+Local History for Visual Studio
 ===========================
 
 Local History for Visual Studio automatically creates a history of your files every time they are saved. The history can be compared with the current version.
+
+
+Requirements
+----------------------------------------------
+This is for is for Visual Studio 2017. For older versions, use the original one: [local-history-visual-studio](https://github.com/curzona/local-history-visual-studio)
+
 
 Usage
 ----------------------------------------------
@@ -10,3 +16,14 @@ Usage
 - Double-click the revision to compare it with the latest version.
 - Add/remove/edit labels by selecting the history item then using the L key
 - Settings page in Tools -> Options -> LocalHistory
+
+
+Contributing
+----------------------------------------------
+PR and issue reports are welcome.
+
+
+Acknowledgments
+----------------------------------------------
+This project is based on the excellent [local-history-visual-studio](https://github.com/curzona/local-history-visual-studio).
+Since the original repository has little activity, I decided to fork it and add a few features (and support for newer VisualStudio versions).
