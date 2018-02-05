@@ -1,10 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="48473bd6-841e-4368-8c7a-a5ea9fad7081" Version="2.0.0" Language="en-US" Publisher="LOSTALLOY" />
+        <Identity Id="48473bd6-841e-4368-8c7a-a5ea9fad7081" Version="2.0.1" Language="en-US" Publisher="LOSTALLOY" />
         <DisplayName>Local History for Visual Studio</DisplayName>
-        <Description xml:space="preserve">Local History for Visual Studio automatically creates a copy everytime you save a file. The local history is stored in the .localhistory directory in the solution and can be viewed by right clicking the file in the Solution Explorer. 
-Items can be delete with the "delete" key, and a label can be added to any item with the "L" key.  If an item already has a label, the "L" key will show a dialog to remove or change the label. Settings can be found in Tools -&gt; Options -&gt; LocalHistory.
+        <Description xml:space="preserve">Local History for Visual Studio automatically creates a copy everytime you save a file.
 </Description>
         <MoreInfo>https://github.com/LostAlloy/LocalHistory-for-Visual-Studio</MoreInfo>
         <License>License.txt</License>

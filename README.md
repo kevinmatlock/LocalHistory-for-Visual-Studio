@@ -18,6 +18,11 @@ Usage
 - Settings page in Tools -> Options -> LocalHistory
 
 
+Notes
+----------------------------------------------
+This is not a substitute for source control or backups. Take care of your code files.
+
+
 Contributing
 ----------------------------------------------
 PR and issue reports are welcome.
