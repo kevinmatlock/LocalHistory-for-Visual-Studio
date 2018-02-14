@@ -8,9 +8,6 @@ Requirements
 ----------------------------------------------
 This is for is for Visual Studio 2017. For older versions, use the original one: [local-history-visual-studio](https://github.com/curzona/local-history-visual-studio)
 
-History
-----------------------------------------------
-See [changelog](LocalHistory/CHANGELOG.MD)
 
 Usage
 ----------------------------------------------
@@ -35,3 +32,13 @@ Acknowledgments
 ----------------------------------------------
 This project is based on the excellent [local-history-visual-studio](https://github.com/curzona/local-history-visual-studio).
 Since the original repository has little activity, I decided to fork it and add a few features (and support for newer VisualStudio versions).
+
+
+History
+----------------------------------------------
+See [changelog](LocalHistory/CHANGELOG.MD)
+
+
+License
+----------------------------------------------
+[Apache License Version 2.0](LocalHistory/License.txt)
