@@ -25,6 +25,7 @@ namespace LOSTALLOY.LocalHistory {
         // ReSharper disable once RedundantDefaultMemberInitializer
         private bool _enableTraceLog = false;
         private bool _useInternalDiff = true;
+        private bool _singleFrameForInternalDiffTool = true;
         private string _diffToolPath;
         private string _diffToolArgs = "{then} {now}";
 
@@ -52,7 +53,16 @@ namespace LOSTALLOY.LocalHistory {
         }
 
         [Category("2. Diff")]
-        [DisplayName("2. Diff tool path")]
+        [DisplayName("2. Single internal diff frame")]
+        [Description("Allow only one internal diff frame to be opened.\n" +
+                     "Will close the previous frame when opening a new one.")]
+        public bool SingleFrameForInternalDiffTool {
+            get => _singleFrameForInternalDiffTool;
+            set => _singleFrameForInternalDiffTool = value;
+        }
+
+        [Category("2. Diff")]
+        [DisplayName("3. Diff tool path")]
         [Description("Path to your custom diff tool. If empty or invalid, the built-in diff from VS will be used.")]
         public string DiffToolPath {
             get => _diffToolPath;
@@ -60,7 +70,7 @@ namespace LOSTALLOY.LocalHistory {
         }
 
         [Category("2. Diff")]
-        [DisplayName("3. Diff tool arguments")]
+        [DisplayName("4. Diff tool arguments")]
         [Description("{now} is replaced with the current file, and {then} is replaced with version to diff.\n" +
                      "If those are not present, the default VS diff will be used.")]
         public string DiffToolArgs {

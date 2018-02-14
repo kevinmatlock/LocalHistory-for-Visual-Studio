@@ -177,6 +177,7 @@ namespace LOSTALLOY.LocalHistory {
 
         private void RunDiff() {
             if (DocumentListBox.SelectedItem == null) {
+                LocalHistoryPackage.Log("Can't run diff. No history point selected.", false, true);
                 return;
             }
 
@@ -192,6 +193,7 @@ namespace LOSTALLOY.LocalHistory {
 
 
             if (!usedBuiltInDiffTool) {
+                LocalHistoryPackage.Log("Using external diff tool.", false, true);
                 try {
                     var diff = new Process();
                     diff.StartInfo.FileName = diffToolPath;
@@ -213,6 +215,7 @@ namespace LOSTALLOY.LocalHistory {
 
             // ReSharper disable once InvertIf
             if (usedBuiltInDiffTool) {
+                LocalHistoryPackage.Log("Using internal diff tool.", false, true);
                 if (!LocalHistoryPackage.Instance.OptionsPage.UseInternalDiff) {
                     //warn the user if anything is wrong
                     if (!string.IsNullOrEmpty(diffToolPath)) {
@@ -233,22 +236,28 @@ namespace LOSTALLOY.LocalHistory {
                 //if we're here, it means that running the external diff tool failed
                 //or we didn't set/have invalid tools paths set.
 
-                // Get the Difference Service we will use to do the comparison
-                if (differenceService == null) {
-                    differenceService = (IVsDifferenceService)Package.GetGlobalService(typeof(SVsDifferenceService));
+                if (differenceFrame != null) {
+                    if (LocalHistoryPackage.Instance.OptionsPage.SingleFrameForInternalDiffTool) {
+                        // Close the last comparison because we only want 1 open at a time
+                        LocalHistoryPackage.Log("Closing previous internal diff service frame.", false, true);
+                        differenceFrame?.CloseFrame((uint) __FRAMECLOSE.FRAMECLOSE_NoSave);
+                    }
+                } else {
+                    // Get the Difference Service we will use to do the comparison
+                    if (differenceService == null) {
+                        LocalHistoryPackage.Log("Getting internal diff service.", false, true);
+                        differenceService = (IVsDifferenceService) Package.GetGlobalService(typeof(SVsDifferenceService));
+                    }
                 }
 
                 if (differenceService == null) {
-                    LocalHistoryPackage.Log($"Could not get {nameof(differenceService)}. Diff will not work.");
+                    LocalHistoryPackage.Log($"Could not get {nameof(differenceService)}. Diff will not work.", true, false);
                     return;
                 }
 
-                // Close the last comparison because we only want 1 open at a time
-                // ReSharper disable once PossibleNullReferenceException
-                differenceFrame.CloseFrame((uint)__FRAMECLOSE.FRAMECLOSE_NoSave);
-
+                LocalHistoryPackage.Log("Opening internal diff frame.", false, true);
                 // Open a comparison between the old file and the current file
-                differenceFrame = differenceService?.OpenComparisonWindow2(
+                differenceFrame = differenceService.OpenComparisonWindow2(
                     node.VersionFileFullFilePath,
                     node.OriginalPath,
                     $"{node.TimestampAndLabel} vs Now",
@@ -257,7 +266,7 @@ namespace LOSTALLOY.LocalHistory {
                     $"{node.OriginalFileName} Now",
                     $"{node.TimestampAndLabel} vs Now",
                     null,
-                    0
+                    (uint) __VSDIFFSERVICEOPTIONS.VSDIFFOPT_LeftFileIsTemporary
                 );
             }
         }
