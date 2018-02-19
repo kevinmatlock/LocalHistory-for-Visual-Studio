@@ -11,6 +11,7 @@ This is for is for Visual Studio 2017. For older versions, use the original one:
 
 Usage
 ----------------------------------------------
+- Install from the [marketplace](https://marketplace.visualstudio.com/items?itemName=lostalloy.LocalHistory-for-Visual-Studio#overview)
 - Open the Local History from the View -> Other Windows menu OR
 - Open the Local History by right clicking on a project item to display the history
 - Double-click the revision to compare it with the latest version.
