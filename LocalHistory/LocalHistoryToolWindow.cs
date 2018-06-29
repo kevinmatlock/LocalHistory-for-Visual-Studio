@@ -56,7 +56,7 @@ namespace LOSTALLOY.LocalHistory {
         #region Public Methods and Operators
 
         public void SetWindowCaption(string append = "") {
-            Caption = $"{Resources.ToolWindowTitle} {append}";
+            Caption = $"{Resources.ToolWindowTitle}{append}";
         }
 
         #endregion
