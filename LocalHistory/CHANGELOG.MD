@@ -1,4 +1,7 @@
-﻿02/14/2018 v.2.0.2
+﻿06/28/2018 v2.1.1 (beta)
+* Fixed history not being saved when the file is not in a subdir relative to the sln file's dir. More info on this issue: https://github.com/LostAlloy/LocalHistory-for-Visual-Studio/issues/3
+
+02/14/2018 v2.0.2
 * Fixed internal diff not opening.
 * Added option to force the internal diff tool to use a single window.
 

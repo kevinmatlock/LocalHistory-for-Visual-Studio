@@ -166,14 +166,12 @@ namespace LOSTALLOY.LocalHistory {
             Log("Entering OnAfterOpenSolution()");
 
             // The solution name can be empty if the user opens a file without opening a solution
-            if (dte?.Solution != null && File.Exists(dte?.Solution.FullName)) {
+            var maybeSolution = dte?.Solution;
+            if (maybeSolution != null && File.Exists(maybeSolution.FullName)) {
                 RegisterDocumentListener();
-
                 RegisterSelectionListener();
             } else {
-                Log(
-                    $"Did not register document listener. dte.Solution==null?{dte?.Solution == null}, " +
-                    $"dte.Solution.FullName:\"{dte?.Solution?.FullName ?? ""}\"");
+                Log($"Did not register document listener. dte.Solution==null? {(maybeSolution == null ? "YES" : $"NO (dte.Solution.FullName: {maybeSolution?.FullName})")}, dte.Solution.FullName:\"{maybeSolution?.FullName ?? "EMPTY"}\"");
             }
 
             return VSConstants.S_OK;
@@ -194,17 +192,17 @@ namespace LOSTALLOY.LocalHistory {
         public void RegisterDocumentListener() {
             var documentTable = (IVsRunningDocumentTable) GetGlobalService(typeof(SVsRunningDocumentTable));
 
-            Log($"dte.Solution.FullName: \"{dte?.Solution.FullName}\"");
+            var maybeSolution = dte?.Solution;
+            Log($"dte.Solution.FullName: \"{maybeSolution?.FullName}\"");
 
             // Create a new document repository for the solution
-            var solutionDirectory = Path.GetDirectoryName(dte?.Solution.FullName);
-            Debug.Assert(solutionDirectory != null, "solutionDirectory != null");
-            var repositoryDirectory = Path.Combine(solutionDirectory, ".localhistory");
+            var solutionDirectory = Path.GetDirectoryName(maybeSolution?.FullName);
+            Debug.Assert(solutionDirectory != null, $"{nameof(solutionDirectory)} != null");
+            var repositoryDirectory = Utils.GetRootRepositoryPath(solutionDirectory);
             Log(
-                $"Creating {nameof(DocumentRepository)} " +
-                $"with solutionDirectory: \"{solutionDirectory}\" " +
-                $"and repositoryDirectory: \"{repositoryDirectory}\""
-            );
+                $"Creating {nameof(DocumentRepository)} "
+                + $"with {nameof(solutionDirectory)}: \"{solutionDirectory}\" "
+                + $"and {nameof(repositoryDirectory)}: \"{repositoryDirectory}\"");
             documentRepository = new DocumentRepository(solutionDirectory, repositoryDirectory);
 
             // Create and register a document listener that will handle save events
@@ -321,29 +319,23 @@ namespace LOSTALLOY.LocalHistory {
                 // Remove all revisions from the revision list that belong to the previous document 
                 control.DocumentItems.Clear();
 
-                foreach (var revision in documentRepository.GetRevisions(filePath)) {
+                var revisions = documentRepository.GetRevisions(filePath);
+                foreach (var revision in revisions) {
                     LogTrace($"Adding revision \"{revision.VersionFileFullFilePath}\"");
                     control.DocumentItems.Add(revision);
                 }
 
                 // Add the project item and its history to the revision list
-                var repositoryPath =
-                        Path.GetDirectoryName(filePath)
-                            ?.Replace(
-                                // ReSharper disable once PossibleNullReferenceException
-                                documentRepository.SolutionDirectory,
-                                documentRepository.RepositoryDirectory,
-                                StringComparison.InvariantCultureIgnoreCase
-                            );
-
-                // ReSharper disable once PossibleNullReferenceException
-                repositoryPath = repositoryPath ?? documentRepository.RepositoryDirectory;
+                var repositoryPath = Utils.GetRepositoryPathForFile(
+                    filePath,
+                    documentRepository.SolutionDirectory);
 
                 Log(
-                    "Setting LatestDocument to: " +
-                    $"repositoryPath:\"{repositoryPath}\", " +
-                    $"filePath:\"{filePath}\", " +
-                    $"filename\"{Path.GetFileName(filePath)}\"");
+                    "Setting LatestDocument to: "
+                    + $"repositoryPath:\"{repositoryPath}\", "
+                    + $"filePath:\"{filePath}\", "
+                    + $"filename\"{Path.GetFileName(filePath)}\"");
+
                 control.LatestDocument = new DocumentNode(
                     repositoryPath,
                     filePath,
