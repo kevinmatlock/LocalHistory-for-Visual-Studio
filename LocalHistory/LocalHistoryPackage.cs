@@ -26,6 +26,7 @@ namespace LOSTALLOY.LocalHistory {
     using Microsoft.VisualStudio;
     using Microsoft.VisualStudio.Shell;
     using Microsoft.VisualStudio.Shell.Interop;
+    using Task = System.Threading.Tasks.Task;
 
 
     /// <summary>
@@ -470,23 +471,6 @@ namespace LOSTALLOY.LocalHistory {
             //previous logs will be Debug.WriteLine only
             Log($"Entering {nameof(InitializeAsync)}");
 
-            var isSlnLoaded = await IsSolutionLoadedAsync();
-            if (isSlnLoaded) {
-                //already loaded, so we need to handle it asap
-                HandleSolutionOpen();
-            }
-
-            //it's recommended to keep refs to Events objects to avoid the GC eating them up
-            //https://stackoverflow.com/a/32600629/2573470
-            solutionEvents = dte.Events.SolutionEvents;
-            if (solutionEvents == null) {
-                Log("Could not get te.Events.SolutionEvents. Will not initialize.");
-                return;
-            }
-
-            solutionEvents.Opened += HandleSolutionOpen;
-            solutionEvents.BeforeClosing += HandleSolutionClose;
-
             // Add our command handlers for menu (commands must exist in the .vsct file)
             Log("Adding tool menu handler.");
             var mcs = await GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
@@ -506,11 +490,29 @@ namespace LOSTALLOY.LocalHistory {
                 Log("Could not get IMenuCommandService. Tool menu will not work.");
             }
 
-            ShowToolWindow(false, cancellationToken);
+            await ShowToolWindowAsync(false, cancellationToken);
+
+            var isSlnLoaded = await IsSolutionLoadedAsync();
+            if (isSlnLoaded) {
+                //already loaded, so we need to handle it asap
+                HandleSolutionOpen();
+            }
+
+            //it's recommended to keep refs to Events objects to avoid the GC eating them up
+            //https://stackoverflow.com/a/32600629/2573470
+            solutionEvents = dte.Events.SolutionEvents;
+            if (solutionEvents == null) {
+                Log("Could not get te.Events.SolutionEvents. Will not initialize.");
+                return;
+            }
 
             //this is distinct from when the user selects a file
             //a document might have been opened by some other means and we want to show the local history for it asap
             dte.Events.DocumentEvents.DocumentOpened += HandleDocumentOpen;
+
+            //we only add our handlers after we got the tool window so we don't break the async method
+            solutionEvents.Opened += HandleSolutionOpen;
+            solutionEvents.BeforeClosing += HandleSolutionClose;
         }
 
 
@@ -530,18 +532,26 @@ namespace LOSTALLOY.LocalHistory {
         #endregion
 
 
-        private async void ShowToolWindow(bool setVisible, CancellationToken cancellationToken = default) {
+        private void ShowToolWindow(bool setVisible) {
             Log(nameof(ShowToolWindow), false, true);
-            if (OptionsPage.EnableDebug  && _outputWindowPane == null) {
+            JoinableTaskFactory.Run(() => ShowToolWindowAsync(setVisible));
+        }
+
+
+        private async Task ShowToolWindowAsync(bool setVisible, CancellationToken cancellationToken = default) {
+            Log(nameof(ShowToolWindowAsync), false, true);
+            if (OptionsPage.EnableDebug && _outputWindowPane == null) {
                 Log("Creating output Window.");
+
                 // ReSharper disable once PossibleNullReferenceException
                 var window = dte.Windows.Item(EnvDTEConstants.vsWindowKindOutput);
-                var outputWindow = (OutputWindow) window?.Object;
+                var outputWindow = (OutputWindow)window?.Object;
                 _outputWindowPane = outputWindow?.OutputWindowPanes.Add(Resources.ToolWindowTitle);
             }
 
             if (ToolWindow == null) {
                 Log("Tool window is null. Searching for it...");
+
                 // Get the instance number 0 of this tool window. This window is single instance so this instance
                 // is actually the only one.
                 ToolWindow = await FindToolWindowAsync(
@@ -549,6 +559,7 @@ namespace LOSTALLOY.LocalHistory {
                     0,
                     true,
                     cancellationToken) as LocalHistoryToolWindow;
+
                 if (ToolWindow?.Frame == null) {
                     Log("Can not create tool window.");
                     return;
@@ -567,9 +578,10 @@ namespace LOSTALLOY.LocalHistory {
             }
 
             Log("Showing tool window.");
+
             // Make sure the tool window is visible to the user
             // ReSharper disable once PossibleNullReferenceException
-            var windowFrame = (IVsWindowFrame) ToolWindow.Frame;
+            var windowFrame = (IVsWindowFrame)ToolWindow.Frame;
             var result = windowFrame.Show();
             if (result != VSConstants.S_OK) {
                 Log($"Failed to show Window. Error code is: {result}");

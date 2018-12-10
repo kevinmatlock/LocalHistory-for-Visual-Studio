@@ -11,7 +11,6 @@
 // limitations under the License.
 
 namespace LOSTALLOY.LocalHistory {
-    using System;
     using System.Runtime.InteropServices;
     using Microsoft.VisualStudio.Shell;
 
@@ -34,8 +33,6 @@ namespace LOSTALLOY.LocalHistory {
         public LocalHistoryToolWindow():
             base(null) {
 
-            SetWindowCaption();
-
             // Set the image that will appear on the tab of the window frame
             // when docked with an other window
             // The resource ID correspond to the one defined in the resx file
@@ -48,6 +45,8 @@ namespace LOSTALLOY.LocalHistory {
             // we are not calling Dispose on this object. This is because ToolWindowPane calls Dispose on 
             // the object returned by the Content property.
             Content = new LocalHistoryControl();
+
+            SetWindowCaption();
         }
 
         #endregion

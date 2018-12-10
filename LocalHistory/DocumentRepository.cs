@@ -238,13 +238,16 @@ namespace LOSTALLOY.LocalHistory {
                 return revisions;
             }
             
-            string[] revisionFiles = Array.Empty<string>();
+            string[] revisionFiles = null;
             if (Directory.Exists(revisionsPath)) {
                 revisionFiles = Directory.GetFiles(revisionsPath);
             }
 
             if (Directory.Exists(oldFormatRevisionsPath)) {
-                revisionFiles = revisionFiles.Union(Directory.GetFiles(oldFormatRevisionsPath)).ToArray();
+                revisionFiles = revisionFiles != null
+                    ? revisionFiles.Union(Directory.GetFiles(oldFormatRevisionsPath)).ToArray()
+                    : Directory.GetFiles(oldFormatRevisionsPath);
+
                 LocalHistoryPackage.Log(
                     $"Searching for revisions for \"{fileName}\" in \"{revisionsPath}\" and \"{oldFormatRevisionsPath}\" (using old format)");
             } else {

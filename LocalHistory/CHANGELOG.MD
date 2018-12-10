@@ -1,4 +1,7 @@
-﻿12/10/2018 v2.1.2 (beta)
+﻿12/10/2018 v2.1.3 (beta)
+* Made the same vsix compatible with both VS 2017 and 2019 (initial version with minimal testing).
+
+12/10/2018 v2.1.2 (beta)
 * Added support for VS 2019+. Using AsyncPackage so VS won't complain. 
 Notes
 * this is a preliminary version and VS 2019 is currently in preview mode. Be careful.
