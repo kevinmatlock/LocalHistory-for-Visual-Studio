@@ -72,7 +72,7 @@ namespace LOSTALLOY.LocalHistory {
                     Control = (LocalHistoryControl)LocalHistoryPackage.Instance.ToolWindow?.Content;
                 }
 
-                if (Control?.LatestDocument.OriginalPath.Equals(newNode.OriginalPath) == true) {
+                if (Control?.LatestDocument?.OriginalPath?.Equals(newNode.OriginalPath) == true) {
                     Control.DocumentItems.Insert(0, newNode);
                 }
             }
@@ -237,8 +237,12 @@ namespace LOSTALLOY.LocalHistory {
                 LocalHistoryPackage.LogTrace($"Neither revisionsPath \"{revisionsPath}\" nor oldFormatRevisionsPath \"{oldFormatRevisionsPath}\" exist." + " Returning empty list.");
                 return revisions;
             }
+            
+            string[] revisionFiles = Array.Empty<string>();
+            if (Directory.Exists(revisionsPath)) {
+                revisionFiles = Directory.GetFiles(revisionsPath);
+            }
 
-            string[] revisionFiles = Directory.GetFiles(revisionsPath);
             if (Directory.Exists(oldFormatRevisionsPath)) {
                 revisionFiles = revisionFiles.Union(Directory.GetFiles(oldFormatRevisionsPath)).ToArray();
                 LocalHistoryPackage.Log(
