@@ -1,4 +1,10 @@
-﻿06/28/2018 v2.1.1 (beta)
+﻿12/10/2018 v2.1.2 (beta)
+* Added support for VS 2019+. Using AsyncPackage so VS won't complain. 
+Notes
+* this is a preliminary version and VS 2019 is currently in preview mode. Be careful.
+* this release was not tested on older VS versions.
+
+06/28/2018 v2.1.1 (beta)
 * Fixed history not being saved when the file is not in a subdir relative to the sln file's dir. More info on this issue: https://github.com/LostAlloy/LocalHistory-for-Visual-Studio/issues/3
 
 02/14/2018 v2.0.2
