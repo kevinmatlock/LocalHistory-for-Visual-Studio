@@ -28,6 +28,7 @@ namespace LOSTALLOY.LocalHistory {
         private bool _singleFrameForInternalDiffTool = true;
         private string _diffToolPath;
         private string _diffToolArgs = "{then} {now}";
+        private string _dateTimeFormat = "dd/MM/yyyy HH:mm:ss";
 
         #endregion
 
@@ -42,6 +43,15 @@ namespace LOSTALLOY.LocalHistory {
         public bool CreateRevisionOnlyIfDirty {
             get => _createRevisionOnlyIfDirty;
             set => _createRevisionOnlyIfDirty = value;
+        }
+
+        [Category("1. General")]
+        [DisplayName("Date format")]
+        [Description("Time/Date format displayed in the history list.")]
+        public string DateTimeFormat
+        {
+            get => _dateTimeFormat;
+            set => _dateTimeFormat = value;
         }
 
         [Category("2. Diff")]
@@ -97,6 +107,7 @@ namespace LOSTALLOY.LocalHistory {
             get => _enableTraceLog;
             set => _enableTraceLog = value;
         }
+
 
         #endregion
 

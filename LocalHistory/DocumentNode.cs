@@ -99,10 +99,10 @@ namespace LOSTALLOY.LocalHistory {
         /// </summary>
         [NotNull]
         [UsedImplicitly]
-        public string Timestamp => $"{_time:dd/MM/yyyy HH:mm:ss}";
+        public string Timestamp => _time.ToString(LocalHistoryPackage.Instance.OptionsPage.DateTimeFormat);
 
         [NotNull]
-        public string TimestampAndLabel => $"{_time:dd/MM/yyyy HH:mm:ss}{(HasLabel ? $" {_label}" : "")}";
+        public string TimestampAndLabel => _time.ToString(LocalHistoryPackage.Instance.OptionsPage.DateTimeFormat) + (HasLabel ? $" {_label}" : "");
 
         #endregion
 
