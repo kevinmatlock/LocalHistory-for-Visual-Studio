@@ -181,7 +181,41 @@ namespace LOSTALLOY.LocalHistory {
                 return;
             }
 
-            var node = (DocumentNode) DocumentListBox.SelectedItem;
+            DocumentNode historyEntryA = null;
+            DocumentNode historyEntryB = null;
+
+            if (DocumentListBox.SelectedItems.Count == 1)
+            {
+                historyEntryA = (DocumentNode)DocumentListBox.SelectedItem;
+            }
+            else if (DocumentListBox.SelectedItems.Count == 2)
+            {
+                //Since the listbox retains the order in which items are selected, this assures that we'll be showing older version on the left, later on right.
+
+                var ts0 = Convert.ToDateTime(((DocumentNode)DocumentListBox.SelectedItems[0]).Timestamp);
+                var ts1 = Convert.ToDateTime(((DocumentNode)DocumentListBox.SelectedItems[1]).Timestamp);
+
+                if (ts0 > ts1)
+                {
+                    historyEntryA = (DocumentNode)DocumentListBox.SelectedItems[1];
+                    historyEntryB = (DocumentNode)DocumentListBox.SelectedItems[0];
+                }
+                else
+                {
+                    historyEntryA = (DocumentNode)DocumentListBox.SelectedItems[0];
+                    historyEntryB = (DocumentNode)DocumentListBox.SelectedItems[1];
+                }
+
+
+            }
+            else
+            {
+                //More than 2 items selected??? The control's events should prevent this, so...
+                LocalHistoryPackage.Log("Too many items selected in history list.", false, true);
+                return;
+            }
+
+
             var diffToolPath = LocalHistoryPackage.Instance.OptionsPage.DiffToolPath;
             var diffToolArgs = LocalHistoryPackage.Instance.OptionsPage.DiffToolArgs;
 
@@ -198,11 +232,17 @@ namespace LOSTALLOY.LocalHistory {
                     var diff = new Process();
                     diff.StartInfo.FileName = diffToolPath;
 
-                    //run merge | then | now | because we often want to copy something from THEN
-                    //and we never want to copy anything from NOW to THEN (makes no sense)
-                    diff.StartInfo.Arguments = diffToolArgs
-                            .Replace("{then}", $"\"{node.VersionFileFullFilePath}\"")
-                            .Replace("{now}", $"\"{node.OriginalPath}\"");
+                    if (historyEntryB == null)
+                        //Only a single version is selected so compare it with the current live version.
+                        diff.StartInfo.Arguments = diffToolArgs
+                            .Replace("{then}", $"\"{historyEntryA.VersionFileFullFilePath}\"")
+                            .Replace("{now}", $"\"{historyEntryA.OriginalPath}\"");
+                    else
+                        //We have 2 versions selected so show a diff of those 2.
+                        diff.StartInfo.Arguments = diffToolArgs
+                            .Replace("{then}", $"\"{historyEntryA.VersionFileFullFilePath}\"")
+                            .Replace("{now}", $"\"{historyEntryB.VersionFileFullFilePath}\"");
+
 
                     diff.StartInfo.WindowStyle = ProcessWindowStyle.Maximized;
                     diff.Start();
@@ -256,18 +296,34 @@ namespace LOSTALLOY.LocalHistory {
                 }
 
                 LocalHistoryPackage.Log("Opening internal diff frame.", false, true);
-                // Open a comparison between the old file and the current file
-                differenceFrame = differenceService.OpenComparisonWindow2(
-                    node.VersionFileFullFilePath,
-                    node.OriginalPath,
-                    $"{node.TimestampAndLabel} vs Now",
-                    $"{node.TimestampAndLabel} vs Now",
-                    $"{node.TimestampAndLabel}",
-                    $"{node.OriginalFileName} Now",
-                    $"{node.TimestampAndLabel} vs Now",
-                    null,
-                    (uint) __VSDIFFSERVICEOPTIONS.VSDIFFOPT_LeftFileIsTemporary
-                );
+
+                if (historyEntryB == null)
+                    // Open a comparison between the single history snapshot selected and the file's current state.
+                    differenceFrame = differenceService.OpenComparisonWindow2(
+                        historyEntryA.VersionFileFullFilePath,
+                        historyEntryA.OriginalPath,
+                        $"{historyEntryA.TimestampAndLabel} vs Now",
+                        $"{historyEntryA.TimestampAndLabel} vs Now",
+                        $"{historyEntryA.TimestampAndLabel}",
+                        $"{historyEntryA.OriginalFileName} Now",
+                        $"{historyEntryA.TimestampAndLabel} vs Now",
+                        null,
+                        (uint)__VSDIFFSERVICEOPTIONS.VSDIFFOPT_LeftFileIsTemporary
+                    );
+                else
+                    // Open a comparison between the 2 past versions.
+                    differenceFrame = differenceService.OpenComparisonWindow2(
+                        historyEntryA.VersionFileFullFilePath,
+                        historyEntryB.VersionFileFullFilePath,
+                        $"{historyEntryA.TimestampAndLabel} vs {historyEntryB.TimestampAndLabel}",
+                        $"{historyEntryA.TimestampAndLabel} vs {historyEntryB.TimestampAndLabel}",
+                        $"{historyEntryA.TimestampAndLabel}",
+                        $"{historyEntryB.TimestampAndLabel}",
+                        $"{historyEntryA.TimestampAndLabel} vs {historyEntryB.TimestampAndLabel}",
+                        null,
+                        (uint)__VSDIFFSERVICEOPTIONS.VSDIFFOPT_LeftFileIsTemporary
+                    );
+
             }
         }
 
@@ -282,6 +338,12 @@ namespace LOSTALLOY.LocalHistory {
                 return;
             }
 
+            //if (Keyboard.Modifiers == ModifierKeys.Control)
+            //{
+            //   // e.Handled = false;
+            //    return;
+            //}
+
             var listBox = (ListBox) sender;
             var node = listBox.SelectedItem as DocumentNode;
             var nodePosition = DocumentItems.IndexOf(node);
@@ -294,6 +356,14 @@ namespace LOSTALLOY.LocalHistory {
 
             DocumentListBox.UpdateLayout();
             var shouldReselectNode = false;
+
+            //     LocalHistoryPackage.Log("preview " +  Keyboard.Modifiers.ToString());
+            //   LocalHistoryPackage.Log("preview " + e.Key.ToString());
+            //if (e.Key == Key.D && Keyboard.Modifiers == ModifierKeys.Control)
+            //{
+            //    RunDiff();
+            //    return;
+            //}
 
             switch (e.Key) {
                 case Key.Enter:
@@ -462,5 +532,38 @@ namespace LOSTALLOY.LocalHistory {
 
         #endregion
 
+        private void DocumentListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (DocumentListBox.SelectedItems.Count < 1)
+                btnDiff.IsEnabled = false;
+            else
+                btnDiff.IsEnabled = true;
+
+            if (DocumentListBox.SelectedItems.Count > 2)
+            {
+                //Replace the second selection with this third item.
+                DocumentListBox.SelectedItems[1] = DocumentListBox.SelectedItem;
+            }
+
+
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            RunDiff();
+        }
+
+        //private void DocumentListBox_KeyDown(object sender, KeyEventArgs e)
+        //{
+        //    LocalHistoryPackage.Log("DocumentListBox_KeyDown " + Keyboard.Modifiers.ToString());
+        //    LocalHistoryPackage.Log("DocumentListBox_KeyDown " + e.Key.ToString());
+
+        //    if (e.Key == Key.D && Keyboard.Modifiers == ModifierKeys.Control)
+        //    {
+        //        RunDiff();
+        //        return;
+        //    }
+
+        //}
     }
 }
