@@ -93,7 +93,7 @@ namespace LOSTALLOY.LocalHistory {
 
         [CanBeNull]
         public string Label => _label;
-
+         
         /// <summary>
         ///     xaml binding. We only store seconds, so we can't have .f and fiends.
         /// </summary>
