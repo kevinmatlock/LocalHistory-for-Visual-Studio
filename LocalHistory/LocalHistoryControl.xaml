@@ -74,26 +74,20 @@
             <Setter Property="VerticalContentAlignment" Value="Top"/>
         </Style>
         <Style x:Key="{x:Type CheckBox}" TargetType="CheckBox" >
-
+            
         </Style>
     </UserControl.Resources>
 
     <DockPanel x:Name="MainPanel" HorizontalAlignment="Stretch">
-       
-    <StackPanel x:Name="ControlPanel" DockPanel.Dock="Top" VerticalAlignment="Center" Margin="0" HorizontalAlignment="Left" Width="120" ScrollViewer.VerticalScrollBarVisibility="Disabled"  >
-                <CheckBox 
-                    Height="20" DockPanel.Dock="Top" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0 5 0 0"
-                    Content="Show only labelled"
-                    IsChecked="{Binding ShowOnlyLabeled, Mode=TwoWay}"
-                    Foreground="{DynamicResource {x:Static platformUi:EnvironmentColors.ToolWindowTextBrushKey}}"
-                    BorderBrush="{DynamicResource {x:Static platformUi:EnvironmentColors.ToolWindowBorderBrushKey}}">
-                </CheckBox>
-                <Button x:Name="btnDiff" Content="Run Diff" Width="75" 
-                        RenderTransformOrigin="0.493,-0.807" 
-                        Click="Button_Click" IsEnabled="False" VerticalAlignment="Center"/>
-            </StackPanel>
-
- <DockPanel x:Name="ResultsPanel" DockPanel.Dock="Top" VerticalAlignment="Top">
+        <DockPanel x:Name="ResultsPanel" DockPanel.Dock="Top">
+            <CheckBox 
+                Height="20" DockPanel.Dock="Top" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0 5 0 0"
+                Content="Show only labelled"
+                IsChecked="{Binding ShowOnlyLabeled, Mode=TwoWay}"
+                Foreground="{DynamicResource {x:Static platformUi:EnvironmentColors.ToolWindowTextBrushKey}}"
+                BorderBrush="{DynamicResource {x:Static platformUi:EnvironmentColors.ToolWindowBorderBrushKey}}">
+            </CheckBox>
+            <Button x:Name="btnDiff" Content="Dff (Ctrl+D)" Width="75" RenderTransformOrigin="0.493,-0.807" Click="Button_Click" IsEnabled="False"/>
             <ScrollViewer 
                 Name="DocumentListBoxScrollViewer" 
                 CanContentScroll="True" 
@@ -106,17 +100,16 @@
                 <ListBox 
                     x:Name="DocumentListBox"
                     PreviewKeyDown="DocumentNodes_PreviewKeyDown"
-                    
                     ScrollViewer.VerticalScrollBarVisibility="Disabled"
                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                     ItemsSource="{Binding DocumentItemsViewSource.View}"
                     Background="{DynamicResource {x:Static platformUi:EnvironmentColors.ToolWindowBackgroundBrushKey}}"
                     Foreground="{DynamicResource {x:Static platformUi:EnvironmentColors.ToolWindowTextBrushKey}}"
-                    BorderBrush="{DynamicResource {x:Static platformUi:EnvironmentColors.ToolWindowBackgroundBrushKey}}"
+                    BorderBrush="{DynamicResource {x:Static platformUi:EnvironmentColors.ToolWindowBackgroundBrushKey}}" 
                     SelectionMode="Multiple" SelectionChanged="DocumentListBox_SelectionChanged">
-                    <!--KeyDown="DocumentListBox_KeyDown"-->
                 </ListBox>
             </ScrollViewer>
+            
         </DockPanel>
         <Label x:Name="NoRevisionsToShowLabel"
             Content="{x:Static localHistory:Resources.EmptyList}"

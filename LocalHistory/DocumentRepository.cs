@@ -10,7 +10,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace LOSTALLOY.LocalHistory {
+namespace LOSTALLOY.LocalHistory
+{
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -18,18 +19,21 @@ namespace LOSTALLOY.LocalHistory {
     using JetBrains.Annotations;
 
 
-    internal class DocumentRepository {
+    internal class DocumentRepository
+    {
 
         #region Constructors and Destructors
 
         /// <summary>
         ///     Creates a new <code>DocumentRepository</code> for the given solution and repository.
         /// </summary>
-        public DocumentRepository(string solutionDirectory, string repositoryDirectory) {
+        public DocumentRepository(string solutionDirectory, string repositoryDirectory)
+        {
             SolutionDirectory = solutionDirectory;
             RepositoryDirectory = repositoryDirectory;
 
-            if (!Directory.Exists(RepositoryDirectory)) {
+            if (!Directory.Exists(RepositoryDirectory))
+            {
                 Directory.CreateDirectory(RepositoryDirectory);
             }
 
@@ -41,25 +45,30 @@ namespace LOSTALLOY.LocalHistory {
         ///     Creates a new new revision in the repository for the given project item.
         /// </summary>
         [CanBeNull]
-        public DocumentNode CreateRevision(string filePath) {
+        public DocumentNode CreateRevision(string filePath)
+        {
             LocalHistoryPackage.Log("CreateRevision(" + filePath + ")");
 
-            if (string.IsNullOrEmpty(filePath)) {
+            if (string.IsNullOrEmpty(filePath))
+            {
                 return null;
             }
 
             filePath = Utils.NormalizePath(filePath);
             DocumentNode newNode = null;
 
-            try {
+            try
+            {
                 var dateTime = DateTime.Now;
                 newNode = CreateRevisionNode(filePath, dateTime);
-                if (newNode == null) {
+                if (newNode == null)
+                {
                     return null;
                 }
 
                 // Create the parent directory if it doesn't exist
-                if (!Directory.Exists(newNode.RepositoryPath)) {
+                if (!Directory.Exists(newNode.RepositoryPath))
+                {
                     LocalHistoryPackage.Log($"Creating (because it doesn't exist) \"{newNode.RepositoryPath}\"");
                     Directory.CreateDirectory(newNode.RepositoryPath);
                 }
@@ -68,15 +77,18 @@ namespace LOSTALLOY.LocalHistory {
                 LocalHistoryPackage.Log($"Copying \"{filePath}\" to \"{newNode.VersionFileFullFilePath}\"");
                 File.Copy(filePath, newNode.VersionFileFullFilePath, true);
 
-                if (Control == null) {
+                if (Control == null)
+                {
                     Control = (LocalHistoryControl)LocalHistoryPackage.Instance.ToolWindow?.Content;
                 }
 
-                if (Control?.LatestDocument.OriginalPath.Equals(newNode.OriginalPath) == true) {
+                if (Control?.LatestDocument.OriginalPath.Equals(newNode.OriginalPath) == true)
+                {
                     Control.DocumentItems.Insert(0, newNode);
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 LocalHistoryPackage.Log(ex.Message);
             }
 
@@ -91,11 +103,13 @@ namespace LOSTALLOY.LocalHistory {
         /// <param name="dateTime"></param>
         /// <returns></returns>
         [CanBeNull]
-        public DocumentNode CreateRevisionNode(string filePath, DateTime dateTime) {
+        public DocumentNode CreateRevisionNode(string filePath, DateTime dateTime)
+        {
             LocalHistoryPackage.Log(
                 $"CreateRevisionNode(filePath:\"{filePath}\", dateTime:{dateTime}), SolutionDirectory:\"{SolutionDirectory}\", RepositoryDirectory:\"{RepositoryDirectory}\"");
 
-            if (string.IsNullOrEmpty(filePath)) {
+            if (string.IsNullOrEmpty(filePath))
+            {
                 LocalHistoryPackage.Log("Empty path. Will not create revision.");
                 return null;
             }
@@ -113,8 +127,10 @@ namespace LOSTALLOY.LocalHistory {
         ///     Creates a <see cref="DocumentNode" /> for a given <see cref="versionedFullFilePath" />
         /// </summary>
         [CanBeNull]
-        public DocumentNode CreateDocumentNodeForFilePath([CanBeNull] string versionedFullFilePath) {
-            if (versionedFullFilePath == null) {
+        public DocumentNode CreateDocumentNodeForFilePath([CanBeNull] string versionedFullFilePath)
+        {
+            if (versionedFullFilePath == null)
+            {
                 return null;
             }
 
@@ -122,7 +138,8 @@ namespace LOSTALLOY.LocalHistory {
 
             versionedFullFilePath = Utils.NormalizePath(versionedFullFilePath);
             string[] parts = Path.GetFileName(versionedFullFilePath).Split('$');
-            if (parts.Length <= 1) { 
+            if (parts.Length <= 1)
+            {
                 LocalHistoryPackage.Log($"Will not create {nameof(DocumentNode)} because filename \"{versionedFullFilePath}\" is in the wrong format", true);
                 return null;
             }
@@ -130,20 +147,24 @@ namespace LOSTALLOY.LocalHistory {
             var dateFromFileName = parts[0];
             var fileName = parts[1];
             var label = parts.Length == 3 ? parts[2] : null;
-            
+
             string originalFullFilePath = null;
             var repositoryPath = Path.GetDirectoryName(versionedFullFilePath) ?? RepositoryDirectory;
             var versionedFileDir = Utils.NormalizePath(Path.GetDirectoryName(versionedFullFilePath));
             var shouldTryOldFormat = false;
-            if (!string.IsNullOrEmpty(versionedFileDir)) {
+            if (!string.IsNullOrEmpty(versionedFileDir))
+            {
                 originalFullFilePath = versionedFileDir.Replace(Utils.GetRootRepositoryPath(SolutionDirectory), string.Empty);
                 string[] splitOriginalFullFilePath = originalFullFilePath.Split(Path.DirectorySeparatorChar);
                 var driveLetter = $"{splitOriginalFullFilePath[1]}{Path.VolumeSeparatorChar}{Path.DirectorySeparatorChar}";
-                if (!Directory.Exists(driveLetter)) {
+                if (!Directory.Exists(driveLetter))
+                {
                     LocalHistoryPackage.LogTrace($"Could not get versionedFileDir for \"{versionedFullFilePath}\". \"{driveLetter}\" is not a valid drive leter. Will try old format");
 
                     shouldTryOldFormat = true;
-                } else {
+                }
+                else
+                {
                     //reconstruct full path, without drive letter
                     originalFullFilePath = string.Join(
                         Path.DirectorySeparatorChar.ToString(),
@@ -156,18 +177,22 @@ namespace LOSTALLOY.LocalHistory {
                     originalFullFilePath = Path.Combine(originalFullFilePath, fileName);
                     originalFullFilePath = Utils.NormalizePath(originalFullFilePath);
 
-                    if (!File.Exists(originalFullFilePath)) {
+                    if (!File.Exists(originalFullFilePath))
+                    {
                         LocalHistoryPackage.LogTrace($"Could not get versionedFileDir for \"{versionedFullFilePath}\". \"{originalFullFilePath}\" does not exist. Will try old format");
                         shouldTryOldFormat = true;
                     }
                 }
-            } else {
+            }
+            else
+            {
                 LocalHistoryPackage.Log($"Could not get versionedFileDir for \"{versionedFullFilePath}\". Will not create {nameof(DocumentNode)}.", true);
                 return null;
             }
 
 
-            if (shouldTryOldFormat && !File.Exists(originalFullFilePath)) {
+            if (shouldTryOldFormat && !File.Exists(originalFullFilePath))
+            {
                 LocalHistoryPackage.LogTrace($"Trying to get original file path for \"{versionedFullFilePath}\". using old format.");
 
                 //try old format (using non-absolute paths)
@@ -175,13 +200,15 @@ namespace LOSTALLOY.LocalHistory {
                 originalFullFilePath = Path.Combine(originalFullFilePath, fileName);
                 originalFullFilePath = Utils.NormalizePath(originalFullFilePath);
 
-                if (File.Exists(originalFullFilePath)) {
+                if (File.Exists(originalFullFilePath))
+                {
                     LocalHistoryPackage.LogTrace(
                         $"Got original file path for \"{versionedFullFilePath}\" in \"{originalFullFilePath}\" using old format!");
                 }
             }
 
-            if (!File.Exists(originalFullFilePath)) {
+            if (!File.Exists(originalFullFilePath))
+            {
                 LocalHistoryPackage.Log(
                     $"Failed to retrieve original path for versioned file \"{versionedFullFilePath}\". Will not create {nameof(DocumentNode)}. File \"{originalFullFilePath}\" does not exist.",
                     true);
@@ -217,9 +244,11 @@ namespace LOSTALLOY.LocalHistory {
         /// <summary>
         ///     Returns all DocumentNode objects in the repository for the given project item.
         /// </summary>
-        public IEnumerable<DocumentNode> GetRevisions([CanBeNull] string filePath) {
+        public IEnumerable<DocumentNode> GetRevisions([CanBeNull] string filePath)
+        {
             var revisions = new List<DocumentNode>();
-            if (string.IsNullOrEmpty(filePath)) {
+            if (string.IsNullOrEmpty(filePath))
+            {
                 LocalHistoryPackage.Log(
                     $"Empty {nameof(filePath)}. Returning empty list.");
 
@@ -233,25 +262,31 @@ namespace LOSTALLOY.LocalHistory {
             var fileBasePath = Path.GetDirectoryName(filePath);
             var oldFormatRevisionsPath = fileBasePath?.Replace(SolutionDirectory, RepositoryDirectory, StringComparison.InvariantCultureIgnoreCase);
 
-            if (!Directory.Exists(oldFormatRevisionsPath) && !Directory.Exists(revisionsPath)) { 
+            if (!Directory.Exists(oldFormatRevisionsPath) && !Directory.Exists(revisionsPath))
+            {
                 LocalHistoryPackage.LogTrace($"Neither revisionsPath \"{revisionsPath}\" nor oldFormatRevisionsPath \"{oldFormatRevisionsPath}\" exist." + " Returning empty list.");
                 return revisions;
             }
 
             string[] revisionFiles = Directory.GetFiles(revisionsPath);
-            if (Directory.Exists(oldFormatRevisionsPath)) {
+            if (Directory.Exists(oldFormatRevisionsPath))
+            {
                 revisionFiles = revisionFiles.Union(Directory.GetFiles(oldFormatRevisionsPath)).ToArray();
                 LocalHistoryPackage.Log(
                     $"Searching for revisions for \"{fileName}\" in \"{revisionsPath}\" and \"{oldFormatRevisionsPath}\" (using old format)");
-            } else {
+            }
+            else
+            {
                 LocalHistoryPackage.Log(
                     $"Searching for revisions for \"{fileName}\" in \"{revisionsPath}\"");
             }
 
-            foreach (var fullFilePath in revisionFiles) {
+            foreach (var fullFilePath in revisionFiles)
+            {
                 var normalizedFullFilePath = Utils.NormalizePath(fullFilePath);
                 string[] splitFileName = normalizedFullFilePath.Split('$');
-                if (splitFileName.Length <= 1) {
+                if (splitFileName.Length <= 1)
+                {
                     LocalHistoryPackage.LogTrace($"Ignoring revision \"{normalizedFullFilePath}\" because it is not in the correct format.");
                     continue;
                 }
@@ -263,16 +298,20 @@ namespace LOSTALLOY.LocalHistory {
                 //Thus, the only way to retrieve everything here is to ignore case
                 //Remember that Windows is case insensitive by default, so we can't really
                 //have two files with names that differ only in case in the same dir.
-                if (!normalizedFullFilePath.EndsWith(fileName, StringComparison.OrdinalIgnoreCase)) {
+                if (!normalizedFullFilePath.EndsWith(fileName, StringComparison.OrdinalIgnoreCase))
+                {
                     //LocalHistoryPackage.Log($"Not a revision:\"{normalizedFullFilePath}\"");
                     continue;
                 }
 
                 LocalHistoryPackage.LogTrace($"Found revision \"{fullFilePath}\"");
                 var node = CreateDocumentNodeForFilePath(fullFilePath);
-                if (node != null) {
+                if (node != null)
+                {
                     revisions.Add(node);
-                } else {
+                }
+                else
+                {
                     LocalHistoryPackage.LogTrace("Not adding revision because node is null.");
                 }
             }

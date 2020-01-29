@@ -1,23 +1,42 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalHistory", "LocalHistory\LocalHistory.csproj", "{47F22155-F29E-417B-9F72-08D503DF18F9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPFCustomMessageBox", "WPFCustomMessageBox\WPFCustomMessageBox.csproj", "{ED02D418-7C0E-4E6C-99A9-BE4357122AE7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{47F22155-F29E-417B-9F72-08D503DF18F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{47F22155-F29E-417B-9F72-08D503DF18F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47F22155-F29E-417B-9F72-08D503DF18F9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{47F22155-F29E-417B-9F72-08D503DF18F9}.Debug|x86.Build.0 = Debug|Any CPU
 		{47F22155-F29E-417B-9F72-08D503DF18F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{47F22155-F29E-417B-9F72-08D503DF18F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47F22155-F29E-417B-9F72-08D503DF18F9}.Release|x86.ActiveCfg = Release|Any CPU
+		{47F22155-F29E-417B-9F72-08D503DF18F9}.Release|x86.Build.0 = Release|Any CPU
+		{ED02D418-7C0E-4E6C-99A9-BE4357122AE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED02D418-7C0E-4E6C-99A9-BE4357122AE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED02D418-7C0E-4E6C-99A9-BE4357122AE7}.Debug|x86.ActiveCfg = Debug|x86
+		{ED02D418-7C0E-4E6C-99A9-BE4357122AE7}.Debug|x86.Build.0 = Debug|x86
+		{ED02D418-7C0E-4E6C-99A9-BE4357122AE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED02D418-7C0E-4E6C-99A9-BE4357122AE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED02D418-7C0E-4E6C-99A9-BE4357122AE7}.Release|x86.ActiveCfg = Release|x86
+		{ED02D418-7C0E-4E6C-99A9-BE4357122AE7}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {82D68352-678E-4A1E-BDA6-E25B78EEB830}
 	EndGlobalSection
 	GlobalSection(CodealikeProperties) = postSolution
 		SolutionGuid = a6baee5e-c10a-4e27-9a71-f6dd403e97bd

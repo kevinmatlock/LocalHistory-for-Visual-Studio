@@ -10,10 +10,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace LOSTALLOY.LocalHistory {
-    using System;
-    using System.Runtime.InteropServices;
-    using Microsoft.VisualStudio.Shell;
+using System;
+using System.Runtime.InteropServices;
+using Microsoft.VisualStudio.Shell;
+
+namespace LOSTALLOY.LocalHistory
+{
+
 
 
     /// <summary>
@@ -24,15 +27,17 @@ namespace LOSTALLOY.LocalHistory {
     ///     implementation of the IVsUIElementPane interface.
     /// </summary>
     [Guid("d3b3b452-f976-4158-9451-d0a5ba7ee6a0")]
-    public sealed class LocalHistoryToolWindow: ToolWindowPane {
+    public sealed class LocalHistoryToolWindow : ToolWindowPane
+    {
 
         #region Constructors and Destructors
 
         /// <summary>
         ///     Standard constructor for the tool window.
         /// </summary>
-        public LocalHistoryToolWindow():
-            base(null) {
+        public LocalHistoryToolWindow() :
+            base(null)
+        {
 
             SetWindowCaption();
 
@@ -55,7 +60,8 @@ namespace LOSTALLOY.LocalHistory {
 
         #region Public Methods and Operators
 
-        public void SetWindowCaption(string append = "") {
+        public void SetWindowCaption(string append = "")
+        {
             Caption = $"{Resources.ToolWindowTitle}{append}";
         }
 

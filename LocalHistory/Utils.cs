@@ -9,25 +9,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace LOSTALLOY.LocalHistory {
+namespace LOSTALLOY.LocalHistory
+{
     using System;
     using System.IO;
     using JetBrains.Annotations;
 
 
-    internal static class Utils {
+    internal static class Utils
+    {
 
-        
+
         [NotNull]
-        public static string NormalizePath(string path) {
+        public static string NormalizePath(string path)
+        {
             return Path.GetFullPath(path.Replace('/', '\\'));
         }
 
 
-        public static string GetRepositoryPathForFile(string filePath, string solutionDirectory) {
+        public static string GetRepositoryPathForFile(string filePath, string solutionDirectory)
+        {
             var fileParentPath = Path.GetDirectoryName(filePath);
             string repositoryPath = null;
-            if (!string.IsNullOrEmpty(fileParentPath)) {
+            if (!string.IsNullOrEmpty(fileParentPath))
+            {
                 repositoryPath =
                     fileParentPath
                         .Replace(
@@ -36,9 +41,12 @@ namespace LOSTALLOY.LocalHistory {
             }
 
             var rootRepositoryPath = GetRootRepositoryPath(solutionDirectory);
-            if (repositoryPath == null) {
+            if (repositoryPath == null)
+            {
                 repositoryPath = rootRepositoryPath;
-            } else {
+            }
+            else
+            {
                 repositoryPath = Path.Combine(rootRepositoryPath, repositoryPath);
             }
 
@@ -47,7 +55,8 @@ namespace LOSTALLOY.LocalHistory {
         }
 
 
-        public static string GetRootRepositoryPath(string solutionDirectory) {
+        public static string GetRootRepositoryPath(string solutionDirectory)
+        {
             return Path.Combine(solutionDirectory, ".localhistory");
         }
 

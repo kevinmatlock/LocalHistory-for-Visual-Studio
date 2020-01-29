@@ -93,16 +93,16 @@ namespace LOSTALLOY.LocalHistory {
 
         [CanBeNull]
         public string Label => _label;
-         
+
         /// <summary>
         ///     xaml binding. We only store seconds, so we can't have .f and fiends.
         /// </summary>
         [NotNull]
         [UsedImplicitly]
-        public string Timestamp => _time.ToString(LocalHistoryPackage.Instance.OptionsPage.DateTimeFormat);
+        public string Timestamp => $"{_time:MM/dd/yyyy h:mm:ss tt}";
 
         [NotNull]
-        public string TimestampAndLabel => _time.ToString(LocalHistoryPackage.Instance.OptionsPage.DateTimeFormat) + (HasLabel ? $" {_label}" : "");
+        public string TimestampAndLabel => $"{_time:MM/dd/yyyy h:mm:ss tt}{(HasLabel ? $" {_label}" : "")}";
 
         #endregion
 

@@ -11,7 +11,8 @@
 // limitations under the License.
 
 // ReSharper disable IdentifierTypo
-namespace LOSTALLOY.LocalHistory {
+namespace LOSTALLOY.LocalHistory
+{
     using System;
     using System.Collections.Generic;
     using System.Collections.Immutable;
@@ -22,7 +23,8 @@ namespace LOSTALLOY.LocalHistory {
     using Utilities;
 
 
-    internal class LocalHistoryDocumentListener: IVsRunningDocTableEvents3Adapter {
+    internal class LocalHistoryDocumentListener : IVsRunningDocTableEvents3Adapter
+    {
 
         #region Fields
 
@@ -35,7 +37,8 @@ namespace LOSTALLOY.LocalHistory {
 
         #region Constructors and Destructors
 
-        public LocalHistoryDocumentListener(IVsRunningDocumentTable documentTable, DocumentRepository documentRepository) {
+        public LocalHistoryDocumentListener(IVsRunningDocumentTable documentTable, DocumentRepository documentRepository)
+        {
             this.documentTable = documentTable;
             this.documentRepository = documentRepository;
         }
@@ -45,13 +48,14 @@ namespace LOSTALLOY.LocalHistory {
 
         #region Public Methods and Operators
 
-        
+
 
         /// <summary>
         ///     When this event is triggered on a project item, a copy of the file is saved to the
         ///     <see cref="documentRepository" />.
         /// </summary>
-        public override int OnBeforeSave(uint docCookie) {
+        public override int OnBeforeSave(uint docCookie)
+        {
             LocalHistoryPackage.Log($"Entering {nameof(OnBeforeSave)}() on {nameof(LocalHistoryDocumentListener)}");
             uint pgrfRDTFlags;
             uint pdwReadLocks;
@@ -73,8 +77,10 @@ namespace LOSTALLOY.LocalHistory {
 
             var filePath = Utils.NormalizePath(pbstrMkDocument);
 
-            if (LocalHistoryPackage.Instance.OptionsPage.CreateRevisionOnlyIfDirty) {
-                if (!_dirtyDocCookie.Contains(docCookie)) {
+            if (LocalHistoryPackage.Instance.OptionsPage.CreateRevisionOnlyIfDirty)
+            {
+                if (!_dirtyDocCookie.Contains(docCookie))
+                {
                     LocalHistoryPackage.Log($"File \"{filePath}\" is not dirty. Will not create version.");
                     return VSConstants.S_OK;
                 }
@@ -91,7 +97,8 @@ namespace LOSTALLOY.LocalHistory {
             //otherwise we would be inserting duplicates in the list
             //remember that DocumentNode has its own GetHashCode
             ObservableCollection<DocumentNode> items = content?.DocumentItems;
-            if (revNode != null && items?.Contains(revNode) == false) {
+            if (revNode != null && items?.Contains(revNode) == false)
+            {
                 LocalHistoryPackage.Log($"Adding file \"{filePath}\" to list.");
                 items.Insert(0, revNode);
                 LocalHistoryPackage.Instance.UpdateToolWindow("", true);
@@ -111,15 +118,20 @@ namespace LOSTALLOY.LocalHistory {
             string pszMkDocumentOld,
             IVsHierarchy pHierNew,
             uint itemidNew,
-            string pszMkDocumentNew) {
-            if (!LocalHistoryPackage.Instance.OptionsPage.CreateRevisionOnlyIfDirty) {
+            string pszMkDocumentNew)
+        {
+            if (!LocalHistoryPackage.Instance.OptionsPage.CreateRevisionOnlyIfDirty)
+            {
                 return VSConstants.S_OK;
             }
 
             uint target = (uint)(__VSRDTATTRIB.RDTA_DocDataIsDirty);
-            if (0 != (target & grfAttribs)) {
+            if (0 != (target & grfAttribs))
+            {
                 _dirtyDocCookie = _dirtyDocCookie.Add(docCookie);
-            } else {
+            }
+            else
+            {
                 _dirtyDocCookie = _dirtyDocCookie.Remove(docCookie);
             }
 

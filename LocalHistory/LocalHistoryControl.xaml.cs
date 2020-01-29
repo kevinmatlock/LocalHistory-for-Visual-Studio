@@ -9,30 +9,33 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-namespace LOSTALLOY.LocalHistory {
-    using System;
-    using System.Collections.ObjectModel;
-    using System.ComponentModel;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Linq;
-    using System.Windows;
-    using System.Windows.Controls;
-    using System.Windows.Data;
-    using System.Windows.Input;
-    using JetBrains.Annotations;
-    using Microsoft.VisualBasic.FileIO;
-    using Microsoft.VisualStudio.Shell;
-    using Microsoft.VisualStudio.Shell.Interop;
-    using WPFCustomMessageBox;
-    using FileSystem = Microsoft.VisualBasic.FileIO.FileSystem;
-
+ using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Input;
+using JetBrains.Annotations;
+using Microsoft.VisualBasic.FileIO;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
+using WPFCustomMessageBox;
+using FileSystem = Microsoft.VisualBasic.FileIO.FileSystem;
+    
+namespace LOSTALLOY.LocalHistory
+{
+   
 
     /// <summary>
     ///     Interaction logic for MyControl.xaml
     /// </summary>
-    public partial class LocalHistoryControl: UserControl, INotifyPropertyChanged {
+    public partial class LocalHistoryControl : UserControl, INotifyPropertyChanged
+    {
 
         #region Fields
 
@@ -43,13 +46,15 @@ namespace LOSTALLOY.LocalHistory {
 
         #region Constructors and Destructors
 
-        public LocalHistoryControl() {
+        public LocalHistoryControl()
+        {
             InitializeComponent();
 
             DocumentItems = new ObservableCollection<DocumentNode>();
 
             // PropertyChanged event propagation
-            DocumentItems.CollectionChanged += (o, e) => {
+            DocumentItems.CollectionChanged += (o, e) =>
+            {
                 LocalHistoryPackage.LogTrace("DocumentItems collection changed.");
                 OnPropertyChanged(nameof(DocumentItems));
                 OnPropertyChanged(nameof(ShowOnlyLabeled));
@@ -91,11 +96,14 @@ namespace LOSTALLOY.LocalHistory {
         public ObservableCollection<DocumentNode> DocumentItems { get; set; }
 
 
-        public bool ShowOnlyLabeled {
+        public bool ShowOnlyLabeled
+        {
             get => _showOnlyLabeled;
             [UsedImplicitly]
-            set {
-                if (_showOnlyLabeled == value) {
+            set
+            {
+                if (_showOnlyLabeled == value)
+                {
                     return;
                 }
 
@@ -124,14 +132,17 @@ namespace LOSTALLOY.LocalHistory {
 
         #region Public Methods and Operators
 
-        public void RefreshXamlItemsVisibility() {
+        public void RefreshXamlItemsVisibility()
+        {
             NoRevisionsToShowLabel.Visibility = VisibleItemsCount == 0 ? Visibility.Visible : Visibility.Collapsed;
             ResultsPanel.Visibility = DocumentItems?.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         }
 
 
-        public void OnPropertyChanged(string propertyName) {
-            if (PropertyChanged != null) {
+        public void OnPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+            {
                 LocalHistoryPackage.LogTrace($"{nameof(OnPropertyChanged)}({propertyName})");
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
@@ -142,41 +153,54 @@ namespace LOSTALLOY.LocalHistory {
 
         #region Event Handlers
 
-        private void LabeledOnlyFilter(object sender, [NotNull] FilterEventArgs e) {
+        private void LabeledOnlyFilter(object sender, [NotNull] FilterEventArgs e)
+        {
             var src = e.Item as DocumentNode;
-            if (src != null) {
-                if (!ShowOnlyLabeled) {
+            if (src != null)
+            {
+                if (!ShowOnlyLabeled)
+                {
                     e.Accepted = true;
                     return;
                 }
 
                 e.Accepted = src.HasLabel;
-            } else {
+            }
+            else
+            {
                 e.Accepted = false;
             }
         }
 
 
-        /// <summary>
-        ///     Opens a difference window with <code>IVsDifferenceService</code> when a DocumentNode is double clicked.
-        /// </summary>
-        private void MouseDoubleClickHandler(object sender, MouseButtonEventArgs e) {
-            RunDiff();
-        }
+      
 
-        private void DocumentNodesScrollView_PreviewMouseWheel(object sender, MouseWheelEventArgs e) {
+        private void DocumentNodesScrollView_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
             var scrollViewer = sender as ScrollViewer;
-            if (e.Delta > 0) {
+            if (e.Delta > 0)
+            {
                 scrollViewer?.LineUp();
             }
-            else {
+            else
+            {
                 scrollViewer?.LineDown();
             }
             e.Handled = true;
         }
 
-        private void RunDiff() {
-            if (DocumentListBox.SelectedItem == null) {
+        /// <summary>
+        ///     Opens a difference window with <code>IVsDifferenceService</code> when a DocumentNode is double clicked.
+        /// </summary>
+        private void MouseDoubleClickHandler(object sender, MouseButtonEventArgs e)
+        {
+            RunDiff();
+        }
+
+        private void RunDiff()
+        {
+            if (DocumentListBox.SelectedItem == null)
+            {
                 LocalHistoryPackage.Log("Can't run diff. No history point selected.", false, true);
                 return;
             }
@@ -206,7 +230,7 @@ namespace LOSTALLOY.LocalHistory {
                     historyEntryB = (DocumentNode)DocumentListBox.SelectedItems[1];
                 }
 
-
+               
             }
             else
             {
@@ -215,7 +239,7 @@ namespace LOSTALLOY.LocalHistory {
                 return;
             }
 
-
+            
             var diffToolPath = LocalHistoryPackage.Instance.OptionsPage.DiffToolPath;
             var diffToolArgs = LocalHistoryPackage.Instance.OptionsPage.DiffToolArgs;
 
@@ -226,13 +250,15 @@ namespace LOSTALLOY.LocalHistory {
                     !diffToolArgs.Contains("{now}");
 
 
-            if (!usedBuiltInDiffTool) {
+            if (!usedBuiltInDiffTool)
+            {
                 LocalHistoryPackage.Log("Using external diff tool.", false, true);
-                try {
+                try
+                {
                     var diff = new Process();
                     diff.StartInfo.FileName = diffToolPath;
 
-                    if (historyEntryB == null)
+                    if (historyEntryB == null) 
                         //Only a single version is selected so compare it with the current live version.
                         diff.StartInfo.Arguments = diffToolArgs
                             .Replace("{then}", $"\"{historyEntryA.VersionFileFullFilePath}\"")
@@ -243,29 +269,33 @@ namespace LOSTALLOY.LocalHistory {
                             .Replace("{then}", $"\"{historyEntryA.VersionFileFullFilePath}\"")
                             .Replace("{now}", $"\"{historyEntryB.VersionFileFullFilePath}\"");
 
-
                     diff.StartInfo.WindowStyle = ProcessWindowStyle.Maximized;
                     diff.Start();
                 }
-                catch (Exception exception) {
+                catch (Exception exception)
+                {
                     LocalHistoryPackage.Log($"Caught exception when trying to run external diff tool. Will try the internal tool. Exception:{exception}");
                     usedBuiltInDiffTool = true;
                 }
             }
 
             // ReSharper disable once InvertIf
-            if (usedBuiltInDiffTool) {
+            if (usedBuiltInDiffTool)
+            {
                 LocalHistoryPackage.Log("Using internal diff tool.", false, true);
-                if (!LocalHistoryPackage.Instance.OptionsPage.UseInternalDiff) {
+                if (!LocalHistoryPackage.Instance.OptionsPage.UseInternalDiff)
+                {
                     //warn the user if anything is wrong
-                    if (!string.IsNullOrEmpty(diffToolPath)) {
+                    if (!string.IsNullOrEmpty(diffToolPath))
+                    {
                         LocalHistoryPackage.Log(
                             $"External diff tool path \"{diffToolPath}\" " +
                             "is invalid. Will use internal diff.",
                             true);
                     }
 
-                    if (!diffToolArgs.Contains("{then}") || !diffToolArgs.Contains("{now}")) {
+                    if (!diffToolArgs.Contains("{then}") || !diffToolArgs.Contains("{now}"))
+                    {
                         LocalHistoryPackage.Log(
                             $"External diff tool args \"{diffToolArgs}\" " +
                             "doesn't contain {{then}} or {{now}}. Will use internal diff.",
@@ -276,21 +306,27 @@ namespace LOSTALLOY.LocalHistory {
                 //if we're here, it means that running the external diff tool failed
                 //or we didn't set/have invalid tools paths set.
 
-                if (differenceFrame != null) {
-                    if (LocalHistoryPackage.Instance.OptionsPage.SingleFrameForInternalDiffTool) {
+                if (differenceFrame != null)
+                {
+                    if (LocalHistoryPackage.Instance.OptionsPage.SingleFrameForInternalDiffTool)
+                    {
                         // Close the last comparison because we only want 1 open at a time
                         LocalHistoryPackage.Log("Closing previous internal diff service frame.", false, true);
-                        differenceFrame?.CloseFrame((uint) __FRAMECLOSE.FRAMECLOSE_NoSave);
+                        differenceFrame?.CloseFrame((uint)__FRAMECLOSE.FRAMECLOSE_NoSave);
                     }
-                } else {
+                }
+                else
+                {
                     // Get the Difference Service we will use to do the comparison
-                    if (differenceService == null) {
+                    if (differenceService == null)
+                    {
                         LocalHistoryPackage.Log("Getting internal diff service.", false, true);
-                        differenceService = (IVsDifferenceService) Package.GetGlobalService(typeof(SVsDifferenceService));
+                        differenceService = (IVsDifferenceService)Package.GetGlobalService(typeof(SVsDifferenceService));
                     }
                 }
 
-                if (differenceService == null) {
+                if (differenceService == null)
+                {
                     LocalHistoryPackage.Log($"Could not get {nameof(differenceService)}. Diff will not work.", true, false);
                     return;
                 }
@@ -298,7 +334,7 @@ namespace LOSTALLOY.LocalHistory {
                 LocalHistoryPackage.Log("Opening internal diff frame.", false, true);
 
                 if (historyEntryB == null)
-                    // Open a comparison between the single history snapshot selected and the file's current state.
+                    // Open a comparison between the old file and the current file
                     differenceFrame = differenceService.OpenComparisonWindow2(
                         historyEntryA.VersionFileFullFilePath,
                         historyEntryA.OriginalPath,
@@ -332,23 +368,20 @@ namespace LOSTALLOY.LocalHistory {
 
         #region Methods
 
-        private void DocumentNodes_PreviewKeyDown(object sender, KeyEventArgs e) {
-            if (DocumentItems.Count == 0) {
+        private void DocumentNodes_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (DocumentItems.Count == 0)
+            {
                 e.Handled = true;
                 return;
             }
 
-            //if (Keyboard.Modifiers == ModifierKeys.Control)
-            //{
-            //   // e.Handled = false;
-            //    return;
-            //}
-
-            var listBox = (ListBox) sender;
+            var listBox = (ListBox)sender;
             var node = listBox.SelectedItem as DocumentNode;
             var nodePosition = DocumentItems.IndexOf(node);
             var filePath = node?.VersionFileFullFilePath;
-            if (filePath == null) {
+            if (filePath == null)
+            {
                 //this happens right after removing a label (renaming a file).
                 //Should be harmless, so we just ignore it.
                 return;
@@ -357,34 +390,39 @@ namespace LOSTALLOY.LocalHistory {
             DocumentListBox.UpdateLayout();
             var shouldReselectNode = false;
 
-            //     LocalHistoryPackage.Log("preview " +  Keyboard.Modifiers.ToString());
-            //   LocalHistoryPackage.Log("preview " + e.Key.ToString());
-            //if (e.Key == Key.D && Keyboard.Modifiers == ModifierKeys.Control)
-            //{
-            //    RunDiff();
-            //    return;
-            //}
+            if (e.Key == Key.D && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                RunDiff();
+                return;
+            }
 
-            switch (e.Key) {
+            switch (e.Key)
+            {
                 case Key.Enter:
                     RunDiff();
                     //this one can just return, we don't have to update anything
                     return;
                 case Key.Up:
                 case Key.PageUp:
-                    if (nodePosition > 0) {
+                    if (nodePosition > 0)
+                    {
                         listBox.SelectedItem = DocumentItems[nodePosition - 1];
                         DocumentListBoxScrollViewer.LineUp();
-                    } else {
+                    }
+                    else
+                    {
                         DocumentListBoxScrollViewer.ScrollToTop();
                     }
                     break;
                 case Key.Down:
                 case Key.PageDown:
-                    if (nodePosition < DocumentItems.Count - 1) {
+                    if (nodePosition < DocumentItems.Count - 1)
+                    {
                         listBox.SelectedItem = DocumentItems[nodePosition + 1];
                         DocumentListBoxScrollViewer.LineDown();
-                    } else {
+                    }
+                    else
+                    {
                         DocumentListBoxScrollViewer.ScrollToBottom();
                     }
                     break;
@@ -400,16 +438,20 @@ namespace LOSTALLOY.LocalHistory {
                 case Key.L:
                     shouldReselectNode = HandleLabelKeyDown(node, nodePosition);
                     break;
+               
             }
 
             LocalHistoryPackage.Instance.UpdateToolWindow("", true);
 
-            if (shouldReselectNode) {
+            if (shouldReselectNode)
+            {
                 //to avoid the selection jumping
                 listBox.SelectedItem = node;
-            } else {
+            }
+            else
+            {
                 var listBoxItem =
-                        (ListBoxItem) DocumentListBox?.ItemContainerGenerator?.ContainerFromItem(DocumentListBox.SelectedItem);
+                        (ListBoxItem)DocumentListBox?.ItemContainerGenerator?.ContainerFromItem(DocumentListBox.SelectedItem);
                 listBoxItem?.Focus();
             }
 
@@ -417,19 +459,24 @@ namespace LOSTALLOY.LocalHistory {
         }
 
 
-        private void HandleDeleteKeyDown(DocumentNode node, ListBox listBox, int nodePosition, string filePath) {
+        private void HandleDeleteKeyDown(DocumentNode node, ListBox listBox, int nodePosition, string filePath)
+        {
             if (MessageBoxResult.OK != MessageBox.Show(
                     string.Format(LocalHistory.Resources.FileDeleteWindowMoveToRecycleBin, filePath),
                     LocalHistory.Resources.FileDeleteWindowTitle,
-                    MessageBoxButton.OKCancel)) {
+                    MessageBoxButton.OKCancel))
+            {
                 return;
             }
 
-            if (File.Exists(filePath)) {
-                try {
+            if (File.Exists(filePath))
+            {
+                try
+                {
                     FileSystem.DeleteFile(filePath, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
                 }
-                catch (Exception) {
+                catch (Exception)
+                {
                     //
                 }
             }
@@ -438,24 +485,30 @@ namespace LOSTALLOY.LocalHistory {
             DocumentItems.Remove(node);
 
             //select the next node after deleting the current one
-            if (nodePosition != 0 && DocumentItems.Count > nodePosition - 1) {
+            if (nodePosition != 0 && DocumentItems.Count > nodePosition - 1)
+            {
                 listBox.SelectedItem = DocumentItems[DocumentItems.Count > nodePosition ? nodePosition : nodePosition - 1];
-            } else if (DocumentItems.Count > 0) {
+            }
+            else if (DocumentItems.Count > 0)
+            {
                 listBox.SelectedItem = DocumentItems[0];
             }
         }
 
-        private bool HandleLabelKeyDown(DocumentNode node, int nodePosition) {
+        private bool HandleLabelKeyDown(DocumentNode node, int nodePosition)
+        {
             var shouldReselectNode = false;
             var didChangeLabel = false;
-            if (node.HasLabel) {
+            if (node.HasLabel)
+            {
                 var messageBoxResult = CustomMessageBox.ShowYesNoCancel(
                     string.Format(LocalHistory.Resources.LabelDeletionWindowFileHasLabelRemoveIt, node.Label),
                     LocalHistory.Resources.LabelChangeWindowTitle,
                     LocalHistory.Resources.Remove,
                     LocalHistory.Resources.Change,
                     LocalHistory.Resources.Cancel);
-                switch (messageBoxResult) {
+                switch (messageBoxResult)
+                {
                     case MessageBoxResult.Cancel:
                         return false;
                     case MessageBoxResult.Yes:
@@ -466,11 +519,14 @@ namespace LOSTALLOY.LocalHistory {
                         didChangeLabel = TryAddingLabel(node);
                         break;
                 }
-            } else {
+            }
+            else
+            {
                 didChangeLabel = TryAddingLabel(node);
             }
 
-            if (didChangeLabel) {
+            if (didChangeLabel)
+            {
                 shouldReselectNode = true;
 
                 //trigger collection changed event
@@ -481,9 +537,12 @@ namespace LOSTALLOY.LocalHistory {
             return shouldReselectNode;
         }
 
-        private bool TryAddingLabel(DocumentNode node) {
-            void LabelInputValidator(object o, InputBoxValidatingArgs e) {
-                if (LabelIsValid(e.Text?.Trim())) {
+        private bool TryAddingLabel(DocumentNode node)
+        {
+            void LabelInputValidator(object o, InputBoxValidatingArgs e)
+            {
+                if (LabelIsValid(e.Text?.Trim()))
+                {
                     return;
                 }
 
@@ -491,7 +550,8 @@ namespace LOSTALLOY.LocalHistory {
                 e.Message = LocalHistory.Resources.InvalidLabel;
             }
 
-            bool LabelIsValid(string l) {
+            bool LabelIsValid(string l)
+            {
                 return !string.IsNullOrEmpty(l) &&
                        l.IndexOfAny(Path.GetInvalidFileNameChars()) < 0;
             }
@@ -502,22 +562,27 @@ namespace LOSTALLOY.LocalHistory {
                 "",
                 LabelInputValidator)?.Text ?? string.Empty;
 
-            if (LabelIsValid(label)) {
-                if (node.Label == label) {
+            if (LabelIsValid(label))
+            {
+                if (node.Label == label)
+                {
                     return false;
                 }
 
-                try {
+                try
+                {
                     node.AddLabel(label);
                 }
-                catch {
+                catch
+                {
                     return false;
                 }
 
                 return true;
             }
 
-            if (!string.IsNullOrEmpty(label)) {
+            if (!string.IsNullOrEmpty(label))
+            {
                 //only show message if not empty
                 //this allows the user to just hit "esc" or even just "enter" to cancel
                 MessageBox.Show(
@@ -541,10 +606,15 @@ namespace LOSTALLOY.LocalHistory {
 
             if (DocumentListBox.SelectedItems.Count > 2)
             {
-                //Replace the second selection with this third item.
+
+
+                //this just prevents a third from being selected.
+                // DocumentListBox.SelectedItems.Remove(DocumentListBox.SelectedItems[2]);
+
+                //this replaces the second with the third item selected
                 DocumentListBox.SelectedItems[1] = DocumentListBox.SelectedItem;
             }
-
+              
 
         }
 
@@ -552,18 +622,5 @@ namespace LOSTALLOY.LocalHistory {
         {
             RunDiff();
         }
-
-        //private void DocumentListBox_KeyDown(object sender, KeyEventArgs e)
-        //{
-        //    LocalHistoryPackage.Log("DocumentListBox_KeyDown " + Keyboard.Modifiers.ToString());
-        //    LocalHistoryPackage.Log("DocumentListBox_KeyDown " + e.Key.ToString());
-
-        //    if (e.Key == Key.D && Keyboard.Modifiers == ModifierKeys.Control)
-        //    {
-        //        RunDiff();
-        //        return;
-        //    }
-
-        //}
     }
 }

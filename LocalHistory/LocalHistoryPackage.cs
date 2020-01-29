@@ -10,7 +10,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace LOSTALLOY.LocalHistory {
+namespace LOSTALLOY.LocalHistory
+{
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.Design;
@@ -53,7 +54,7 @@ namespace LOSTALLOY.LocalHistory {
     [ProvideToolWindow(typeof(LocalHistoryToolWindow))]
     [Guid(GuidList.guidLocalHistoryPkgString)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string)]
-//    [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExistsAndFullyLoaded_string)] //if this is used, the OnAfterOpenSolution won't fire
+    //    [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExistsAndFullyLoaded_string)] //if this is used, the OnAfterOpenSolution won't fire
     [ProvideOptionPage(
         typeof(OptionsPage),
         "Sugoi LocalHistory",
@@ -69,7 +70,8 @@ namespace LOSTALLOY.LocalHistory {
             "sugoi",
             "lostalloy"
         })]
-    public sealed class LocalHistoryPackage: Package, IVsSolutionEvents, IVsSelectionEvents {
+    public sealed class LocalHistoryPackage : Package, IVsSolutionEvents, IVsSelectionEvents
+    {
 
         #region Static Fields
 
@@ -110,41 +112,50 @@ namespace LOSTALLOY.LocalHistory {
 
         #region Public Methods and Operators
 
-        public static void LogTrace(string message) {
+        public static void LogTrace(string message)
+        {
             Log(message, false, true);
         }
 
 
-        public static void Log(string message, bool forced = false, bool trace = false) {
-            if (string.IsNullOrEmpty(message)) {
+        public static void Log(string message, bool forced = false, bool trace = false)
+        {
+            if (string.IsNullOrEmpty(message))
+            {
                 return;
             }
 
-            if (!forced && Instance.OptionsPage?.EnableDebug != true) {
+            if (!forced && Instance.OptionsPage?.EnableDebug != true)
+            {
                 return;
             }
 
-            if (trace && Instance.OptionsPage?.EnableTraceLog != true) {
+            if (trace && Instance.OptionsPage?.EnableTraceLog != true)
+            {
                 return;
             }
 
             var formattedMessage = $"[{DateTime.Now:HH:mm:ss.ffff}] {message}\n";
 
-            if (dte == null) {
+            if (dte == null)
+            {
                 Debug.WriteLine("DTE is null! Can't log!");
                 Debug.WriteLine(formattedMessage);
                 _lateLogs.Add(formattedMessage);
                 return;
             }
 
-            if (_outputWindowPane == null) {
+            if (_outputWindowPane == null)
+            {
                 _lateLogs.Add(formattedMessage);
                 return;
             }
 
-            if (_lateLogs.Any()) {
+            if (_lateLogs.Any())
+            {
                 _outputWindowPane.OutputString($"Found {_lateLogs.Count} late logs. Beginning output...\n");
-                foreach (var lateLog in _lateLogs) {
+                foreach (var lateLog in _lateLogs)
+                {
                     _outputWindowPane.OutputString($"{lateLog}");
                 }
 
@@ -162,15 +173,19 @@ namespace LOSTALLOY.LocalHistory {
         ///     When a solution is opened, this function creates a new <code>DocumentRepository</code> and
         ///     registers the <code>LocalHistoryDocumentListener</code> to listen for save events.
         /// </summary>
-        public int OnAfterOpenSolution(object pUnkReserved, int fNewSolution) {
+        public int OnAfterOpenSolution(object pUnkReserved, int fNewSolution)
+        {
             Log("Entering OnAfterOpenSolution()");
 
             // The solution name can be empty if the user opens a file without opening a solution
             var maybeSolution = dte?.Solution;
-            if (maybeSolution != null && File.Exists(maybeSolution.FullName)) {
+            if (maybeSolution != null && File.Exists(maybeSolution.FullName))
+            {
                 RegisterDocumentListener();
                 RegisterSelectionListener();
-            } else {
+            }
+            else
+            {
                 Log($"Did not register document listener. dte.Solution==null? {(maybeSolution == null ? "YES" : $"NO (dte.Solution.FullName: {maybeSolution?.FullName})")}, dte.Solution.FullName:\"{maybeSolution?.FullName ?? "EMPTY"}\"");
             }
 
@@ -181,7 +196,8 @@ namespace LOSTALLOY.LocalHistory {
         /// <summary>
         ///     When a solution is closed, this function creates unsubscribed to documents and selection events.
         /// </summary>
-        public int OnAfterCloseSolution(object pUnkReserved) {
+        public int OnAfterCloseSolution(object pUnkReserved)
+        {
             UnregisterDocumentListener();
             UnregisterSelectionListener();
             UpdateToolWindow();
@@ -189,8 +205,9 @@ namespace LOSTALLOY.LocalHistory {
             return VSConstants.S_OK;
         }
 
-        public void RegisterDocumentListener() {
-            var documentTable = (IVsRunningDocumentTable) GetGlobalService(typeof(SVsRunningDocumentTable));
+        public void RegisterDocumentListener()
+        {
+            var documentTable = (IVsRunningDocumentTable)GetGlobalService(typeof(SVsRunningDocumentTable));
 
             var maybeSolution = dte?.Solution;
             Log($"dte.Solution.FullName: \"{maybeSolution?.FullName}\"");
@@ -209,37 +226,44 @@ namespace LOSTALLOY.LocalHistory {
             documentListener = new LocalHistoryDocumentListener(documentTable, documentRepository);
 
             var adviseResult = documentTable.AdviseRunningDocTableEvents(documentListener, out rdtCookie);
-            if (adviseResult != VSConstants.S_OK) {
+            if (adviseResult != VSConstants.S_OK)
+            {
                 Log($"Failed to AdviseRunningDocTableEvents. Error code is: {adviseResult}");
             }
         }
 
 
-        public void UnregisterDocumentListener() {
-            var documentTable = (IVsRunningDocumentTable) GetGlobalService(typeof(SVsRunningDocumentTable));
+        public void UnregisterDocumentListener()
+        {
+            var documentTable = (IVsRunningDocumentTable)GetGlobalService(typeof(SVsRunningDocumentTable));
 
             var unadivise = documentTable.UnadviseRunningDocTableEvents(rdtCookie);
-            if (unadivise != VSConstants.S_OK) {
+            if (unadivise != VSConstants.S_OK)
+            {
                 Log($"Failed to UnadviseRunningDocTableEvents. Error code is: {unadivise}");
             }
         }
 
 
-        public void RegisterSelectionListener() {
-            var selectionMonitor = (IVsMonitorSelection) GetGlobalService(typeof(SVsShellMonitorSelection));
+        public void RegisterSelectionListener()
+        {
+            var selectionMonitor = (IVsMonitorSelection)GetGlobalService(typeof(SVsShellMonitorSelection));
 
-            var adviseResult =  selectionMonitor.AdviseSelectionEvents(this, out selectionCookie);
-            if (adviseResult != VSConstants.S_OK) {
+            var adviseResult = selectionMonitor.AdviseSelectionEvents(this, out selectionCookie);
+            if (adviseResult != VSConstants.S_OK)
+            {
                 Log($"Failed to AdviseSelectionEvents. Error code is: {adviseResult}");
             }
         }
 
 
-        public void UnregisterSelectionListener() {
-            var selectionMonitor = (IVsMonitorSelection) GetGlobalService(typeof(SVsShellMonitorSelection));
+        public void UnregisterSelectionListener()
+        {
+            var selectionMonitor = (IVsMonitorSelection)GetGlobalService(typeof(SVsShellMonitorSelection));
 
             var unadivise = selectionMonitor.UnadviseSelectionEvents(selectionCookie);
-            if (unadivise != VSConstants.S_OK) {
+            if (unadivise != VSConstants.S_OK)
+            {
                 Log($"Failed to UnadviseSelectionEvents. Error code is: {unadivise}");
             }
         }
@@ -253,26 +277,31 @@ namespace LOSTALLOY.LocalHistory {
             IVsHierarchy pHierNew,
             uint itemidNew,
             IVsMultiItemSelect pMISNew,
-            ISelectionContainer pSCNew) {
+            ISelectionContainer pSCNew)
+        {
             // The selected item can be a Solution, Project, meta ProjectItem or file ProjectItem
 
             // Don't update the tool window if the selection has not changed
-            if (itemidOld == itemidNew) {
+            if (itemidOld == itemidNew)
+            {
                 return VSConstants.S_OK;
             }
 
             // Don't update the tool window if it doesn't exist
-            if (ToolWindow == null) {
+            if (ToolWindow == null)
+            {
                 ShowToolWindow(false);
             }
 
-            if (ToolWindow == null) {
+            if (ToolWindow == null)
+            {
                 return VSConstants.S_OK;
             }
 
             // Don't update the tool window if it isn't visible
-            var windowFrame = (IVsWindowFrame) ToolWindow.Frame;
-            if (windowFrame.IsVisible() == VSConstants.S_FALSE) {
+            var windowFrame = (IVsWindowFrame)ToolWindow.Frame;
+            if (windowFrame.IsVisible() == VSConstants.S_FALSE)
+            {
                 Log("Tool window is not visible. Will not update.");
                 return VSConstants.S_OK;
             }
@@ -283,11 +312,13 @@ namespace LOSTALLOY.LocalHistory {
             var item = si?.ProjectItem;
 
             // Solutions and Projects don't have ProjectItems
-            if (item != null && item.FileCount != 0) {
+            if (item != null && item.FileCount != 0)
+            {
                 var filePath = item.FileNames[0];
 
                 // Only update for project items that exist (Not all of them do).
-                if (File.Exists(filePath)) {
+                if (File.Exists(filePath))
+                {
                     UpdateToolWindow(filePath);
 
                     return VSConstants.S_OK;
@@ -300,27 +331,32 @@ namespace LOSTALLOY.LocalHistory {
         }
 
 
-        public void UpdateToolWindow([CanBeNull] string filePath = "", bool fileCountOnly = false) {
-            if (ToolWindow == null || filePath == null) {
+        public void UpdateToolWindow([CanBeNull] string filePath = "", bool fileCountOnly = false)
+        {
+            if (ToolWindow == null || filePath == null)
+            {
                 return;
             }
 
 
-            if (documentRepository == null) {
+            if (documentRepository == null)
+            {
                 Log($"{nameof(documentRepository)} wasn't set yet. Can't update Window.");
                 return;
             }
+            
+            var control = (LocalHistoryControl)ToolWindow.Content;
 
-            var control = (LocalHistoryControl) ToolWindow.Content;
-
-            if (!fileCountOnly && filePath != "") {
+            if (!fileCountOnly && filePath != "")
+            {
                 filePath = Utils.NormalizePath(filePath);
 
                 // Remove all revisions from the revision list that belong to the previous document 
                 control.DocumentItems.Clear();
 
                 var revisions = documentRepository.GetRevisions(filePath);
-                foreach (var revision in revisions) {
+                foreach (var revision in revisions)
+                {
                     LogTrace($"Adding revision \"{revision.VersionFileFullFilePath}\"");
                     control.DocumentItems.Add(revision);
                 }
@@ -343,13 +379,17 @@ namespace LOSTALLOY.LocalHistory {
                     DateTime.Now);
 
                 ToolWindow?.SetWindowCaption($" - {Path.GetFileName(filePath)} ({control.VisibleItemsCount})");
-            } else if (fileCountOnly) {
+            }
+            else if (fileCountOnly)
+            {
                 var currentCaption = ToolWindow.Caption;
 
                 //regex to replace the current file count in () with the current one
                 var regex = new Regex(@"\(([^)]*)\)[^(]*$");
                 ToolWindow.Caption = regex.Replace(currentCaption, $"({control.VisibleItemsCount})");
-            } else {
+            }
+            else
+            {
                 //we just switched the selection to something else (like the "Properties" or "References"
                 //or maybe we unloaded the solution
                 //we need to clear the list so it will show the empty message propertly
@@ -363,34 +403,39 @@ namespace LOSTALLOY.LocalHistory {
 
         public int OnAfterLoadProject(
             IVsHierarchy pStubHierarchy,
-            IVsHierarchy pRealHierarchy) {
+            IVsHierarchy pRealHierarchy)
+        {
             return VSConstants.S_OK;
         }
 
 
         public int OnAfterOpenProject(
             IVsHierarchy pHierarchy,
-            int fAdded) {
+            int fAdded)
+        {
             return VSConstants.S_OK;
         }
 
 
         public int OnBeforeCloseProject(
             IVsHierarchy pHierarchy,
-            int fRemoved) {
+            int fRemoved)
+        {
             return VSConstants.S_OK;
         }
 
 
         public int OnBeforeCloseSolution(
-            object pUnkReserved) {
+            object pUnkReserved)
+        {
             return VSConstants.S_OK;
         }
 
 
         public int OnBeforeUnloadProject(
             IVsHierarchy pRealHierarchy,
-            IVsHierarchy pStubHierarchy) {
+            IVsHierarchy pStubHierarchy)
+        {
             return VSConstants.S_OK;
         }
 
@@ -400,7 +445,8 @@ namespace LOSTALLOY.LocalHistory {
             int fRemoving,
 
             // ReSharper disable once RedundantAssignment
-            ref int pfCancel) {
+            ref int pfCancel)
+        {
             pfCancel = VSConstants.S_OK;
 
             return VSConstants.S_OK;
@@ -411,7 +457,8 @@ namespace LOSTALLOY.LocalHistory {
             object pUnkReserved,
 
             // ReSharper disable once RedundantAssignment
-            ref int pfCancel) {
+            ref int pfCancel)
+        {
             pfCancel = VSConstants.S_OK;
 
             return VSConstants.S_OK;
@@ -422,19 +469,22 @@ namespace LOSTALLOY.LocalHistory {
             IVsHierarchy pRealHierarchy,
 
             // ReSharper disable once RedundantAssignment
-            ref int pfCancel) {
+            ref int pfCancel)
+        {
             pfCancel = VSConstants.S_OK;
 
             return VSConstants.S_OK;
         }
 
 
-        public int OnCmdUIContextChanged(uint dwCmdUICookie, int fActive) {
+        public int OnCmdUIContextChanged(uint dwCmdUICookie, int fActive)
+        {
             return VSConstants.S_OK;
         }
 
 
-        public int OnElementValueChanged(uint elementid, object varValueOld, object varValueNew) {
+        public int OnElementValueChanged(uint elementid, object varValueOld, object varValueNew)
+        {
             return VSConstants.S_OK;
         }
 
@@ -448,15 +498,19 @@ namespace LOSTALLOY.LocalHistory {
         ///     See the Initialize method to see how the menu item is associated to this function using
         ///     the OleMenuCommandService service and the MenuCommand class.
         /// </summary>
-        private void ProjectItemContextMenuHandler(object sender, EventArgs e) {
+        private void ProjectItemContextMenuHandler(object sender, EventArgs e)
+        {
             var filePath = dte?.SelectedItems.Item(1).ProjectItem.FileNames[0];
             Log($"Processing right-click command for {nameof(filePath)}:\"{filePath}\"");
 
-            if (File.Exists(filePath)) {
+            if (File.Exists(filePath))
+            {
                 Log("Showing window (right-click command)");
                 ShowToolWindow(true);
                 UpdateToolWindow(filePath);
-            } else {
+            }
+            else
+            {
                 Log($"File \"{filePath}\" does not exist. Will not activate the tool window.");
             }
         }
@@ -467,7 +521,8 @@ namespace LOSTALLOY.LocalHistory {
         ///     tool window. See the Initialize method to see how the menu item is associated to
         ///     this function using the OleMenuCommandService service and the MenuCommand class.
         /// </summary>
-        private void ToolWindowMenuItemHandler(object sender, EventArgs e) {
+        private void ToolWindowMenuItemHandler(object sender, EventArgs e)
+        {
             ShowToolWindow(true);
         }
 
@@ -481,15 +536,17 @@ namespace LOSTALLOY.LocalHistory {
         /// <summary>
         ///     Initialization of the package; this method is called right after the package is sited.
         /// </summary>
-        protected override void Initialize() {
+        protected override void Initialize()
+        {
             base.Initialize();
             //Log needs the OptionsPage
-            OptionsPage = (OptionsPage) GetDialogPage(typeof(OptionsPage));
+            OptionsPage = (OptionsPage)GetDialogPage(typeof(OptionsPage));
             Instance = this;
 
             //Log needs the dte object
             dte = GetGlobalService(typeof(DTE)) as DTE;
-            if (dte == null) {
+            if (dte == null)
+            {
                 //this log will only log with Debug.WriteLine, since we failed to get the DTE for some reason
                 Log("Could not get DTE object. Will not initialize.");
                 return;
@@ -499,30 +556,34 @@ namespace LOSTALLOY.LocalHistory {
             //previous logs will be Debug.WriteLine only
             Log($"Entering {nameof(Initialize)}");
 
-            var solution = (IVsSolution) GetService(typeof(SVsSolution));
+            var solution = (IVsSolution)GetService(typeof(SVsSolution));
 
             var adviseResult = solution.AdviseSolutionEvents(this, out solutionCookie);
-            if (adviseResult != VSConstants.S_OK) {
+            if (adviseResult != VSConstants.S_OK)
+            {
                 Log($"Failed to AdviseSolutionEvents. Will not initialize. Error code is: {adviseResult}");
                 return;
             }
 
             // Add our command handlers for menu (commands must exist in the .vsct file)
             Log("Adding tool menu handler.");
-            var mcs = (OleMenuCommandService) GetService(typeof(IMenuCommandService));
-            if (null != mcs) {
+            var mcs = (OleMenuCommandService)GetService(typeof(IMenuCommandService));
+            if (null != mcs)
+            {
                 // Create the command for the menu item.
-                var menuCommandID = new CommandID(GuidList.guidLocalHistoryCmdSet, (int) PkgCmdIDList.cmdidLocalHistoryMenuItem);
+                var menuCommandID = new CommandID(GuidList.guidLocalHistoryCmdSet, (int)PkgCmdIDList.cmdidLocalHistoryMenuItem);
                 var menuItem = new MenuCommand(ProjectItemContextMenuHandler, menuCommandID);
                 mcs.AddCommand(menuItem);
                 Log("Added context menu command.");
 
                 // Create the command for the tool window
-                var toolwndCommandID = new CommandID(GuidList.guidLocalHistoryCmdSet, (int) PkgCmdIDList.cmdidLocalHistoryWindow);
+                var toolwndCommandID = new CommandID(GuidList.guidLocalHistoryCmdSet, (int)PkgCmdIDList.cmdidLocalHistoryWindow);
                 var menuToolWin = new MenuCommand(ToolWindowMenuItemHandler, toolwndCommandID);
                 mcs.AddCommand(menuToolWin);
                 Log("Added menu command.");
-            } else {
+            }
+            else
+            {
                 Log("Could not get IMenuCommandService. Tool menu will not work.");
             }
 
@@ -532,22 +593,26 @@ namespace LOSTALLOY.LocalHistory {
         #endregion
 
 
-        private void ShowToolWindow(bool setVisible) {
+        private void ShowToolWindow(bool setVisible)
+        {
             Log("Opening tool Window.");
-            if (OptionsPage.EnableDebug  && _outputWindowPane == null) {
+            if (OptionsPage.EnableDebug && _outputWindowPane == null)
+            {
                 Log("Creating output Window.");
                 // ReSharper disable once PossibleNullReferenceException
                 var window = dte.Windows.Item(EnvDTEConstants.vsWindowKindOutput);
-                var outputWindow = (OutputWindow) window?.Object;
+                var outputWindow = (OutputWindow)window?.Object;
                 _outputWindowPane = outputWindow?.OutputWindowPanes.Add(Resources.ToolWindowTitle);
             }
 
-            if (ToolWindow == null) {
+            if (ToolWindow == null)
+            {
                 Log("Tool window is null. Searching for it...");
                 // Get the instance number 0 of this tool window. This window is single instance so this instance
                 // is actually the only one.
                 ToolWindow = FindToolWindow(typeof(LocalHistoryToolWindow), 0, true) as LocalHistoryToolWindow;
-                if (ToolWindow?.Frame == null) {
+                if (ToolWindow?.Frame == null)
+                {
                     Log("Can not create tool window.");
                     return;
                 }
@@ -555,25 +620,29 @@ namespace LOSTALLOY.LocalHistory {
                 ToolWindow.SetWindowCaption();
             }
 
-            if (ToolWindow == null) {
+            if (ToolWindow == null)
+            {
                 Log("Failed to create tool window.");
                 return;
             }
 
-            if (!setVisible) {
+            if (!setVisible)
+            {
                 return;
             }
 
             Log("Showing tool window.");
             // Make sure the tool window is visible to the user
             // ReSharper disable once PossibleNullReferenceException
-            var windowFrame = (IVsWindowFrame) ToolWindow.Frame;
+            var windowFrame = (IVsWindowFrame)ToolWindow.Frame;
             var result = windowFrame.Show();
-            if (result != VSConstants.S_OK) {
+            if (result != VSConstants.S_OK)
+            {
                 Log($"Failed to show Window. Error code is: {result}");
             }
 
-            if (windowFrame.IsVisible() != VSConstants.S_OK) {
+            if (windowFrame.IsVisible() != VSConstants.S_OK)
+            {
                 Log("Failed to show Window. This should never happen.");
             }
         }

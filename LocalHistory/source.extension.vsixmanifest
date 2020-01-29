@@ -5,7 +5,7 @@
         <DisplayName>Local History for Visual Studio</DisplayName>
         <Description xml:space="preserve">Local History for Visual Studio automatically creates a copy everytime you save a file.</Description>
         <MoreInfo>https://github.com/LostAlloy/LocalHistory-for-Visual-Studio</MoreInfo>
-        <License>License.txt</License>
+        <!--<License>License.txt</License>-->
         <ReleaseNotes>CHANGELOG.MD</ReleaseNotes>
         <Tags>Source Control</Tags>
     </Metadata>

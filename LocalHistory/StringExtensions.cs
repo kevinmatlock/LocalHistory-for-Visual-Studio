@@ -9,23 +9,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace LOSTALLOY.LocalHistory {
+namespace LOSTALLOY.LocalHistory
+{
     using System;
     using System.IO;
     using System.Text;
     using JetBrains.Annotations;
 
 
-    public static class StringExtensions {
+    public static class StringExtensions
+    {
 
         #region Public Methods and Operators
 
-        public static string Replace(this string str, string oldValue, string newValue, StringComparison comparison) {
+        public static string Replace(this string str, string oldValue, string newValue, StringComparison comparison)
+        {
             var sb = new StringBuilder();
 
             var previousIndex = 0;
             var index = str.IndexOf(oldValue, comparison);
-            while (index != -1) {
+            while (index != -1)
+            {
                 sb.Append(str.Substring(previousIndex, index - previousIndex));
                 sb.Append(newValue);
                 index += oldValue.Length;
@@ -44,7 +48,8 @@ namespace LOSTALLOY.LocalHistory {
         ///     The comparison is case-insensitive, handles / and \ slashes as folder separators and
         ///     only matches if the base dir folder name is matched exactly ("c:\foobar\file.txt" is not a sub path of "c:\foo").
         /// </summary>
-        public static bool IsSubPathOf(this string path, string baseDirPath) {
+        public static bool IsSubPathOf(this string path, string baseDirPath)
+        {
             var normalizedPath = Utils.NormalizePath(path);
             var normalizedBaseDirPath = Path.GetFullPath(Utils.NormalizePath(baseDirPath));
             return normalizedPath.StartsWith(normalizedBaseDirPath, StringComparison.OrdinalIgnoreCase);
@@ -57,8 +62,10 @@ namespace LOSTALLOY.LocalHistory {
         ///     results in satisfying .EndsWith(ending).
         /// </summary>
         /// <example>"hel".WithEnding("llo") returns "hello", which is the result of "hel" + "lo".</example>
-        public static string WithEnding([CanBeNull] this string str, string ending) {
-            if (str == null) {
+        public static string WithEnding([CanBeNull] this string str, string ending)
+        {
+            if (str == null)
+            {
                 return ending;
             }
 
@@ -67,9 +74,11 @@ namespace LOSTALLOY.LocalHistory {
             // Right() is 1-indexed, so include these cases
             // * Append no characters
             // * Append up to N characters, where N is ending length
-            for (var i = 0; i <= ending.Length; i++) {
+            for (var i = 0; i <= ending.Length; i++)
+            {
                 var tmp = result + ending.Right(i);
-                if (tmp.EndsWith(ending, StringComparison.Ordinal)) {
+                if (tmp.EndsWith(ending, StringComparison.Ordinal))
+                {
                     return tmp;
                 }
             }
@@ -82,11 +91,14 @@ namespace LOSTALLOY.LocalHistory {
         /// <param name="value">The string to retrieve the substring from.</param>
         /// <param name="length">The number of characters to retrieve.</param>
         /// <returns>The substring.</returns>
-        public static string Right([NotNull] this string value, int length) {
-            if (value == null) {
+        public static string Right([NotNull] this string value, int length)
+        {
+            if (value == null)
+            {
                 throw new ArgumentNullException(nameof(value));
             }
-            if (length < 0) {
+            if (length < 0)
+            {
                 // ReSharper disable once LocalizableElement
                 throw new ArgumentOutOfRangeException(nameof(length), length, "Length is less than zero");
             }
