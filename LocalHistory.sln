@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.28307.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalHistory", "LocalHistory\LocalHistory.csproj", "{47F22155-F29E-417B-9F72-08D503DF18F9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPFCustomMessageBox", "WPFCustomMessageBox\WPFCustomMessageBox.csproj", "{ED02D418-7C0E-4E6C-99A9-BE4357122AE7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPFCustomMessageBox", "..\WPFCustomMessageBox\source\WPFCustomMessageBox\WPFCustomMessageBox.csproj", "{ED02D418-7C0E-4E6C-99A9-BE4357122AE7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

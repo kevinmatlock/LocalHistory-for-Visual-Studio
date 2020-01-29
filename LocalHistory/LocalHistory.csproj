@@ -227,7 +227,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WPFCustomMessageBox\WPFCustomMessageBox.csproj">
+    <ProjectReference Include="..\..\WPFCustomMessageBox\source\WPFCustomMessageBox\WPFCustomMessageBox.csproj">
       <Project>{ed02d418-7c0e-4e6c-99a9-be4357122ae7}</Project>
       <Name>WPFCustomMessageBox</Name>
     </ProjectReference>
